@@ -33,14 +33,18 @@ class Graph
         algbase&router2;
         pair<int,int>prepush(int s,int t,int n,ofstream& out)
         {
-        	pair<int,int>a=router1.prepush(s,t,0);
-        	pair<int,int>b=router2.prepush(s,t,0);
+        	//pair<int,int>a=router1.prepush(s,t,0);
+        	//pair<int,int>b=router2.prepush(s,t,0);
         	return make_pair(0,0);
         }
         pair<int,int>routalg(int s,int t,int bw)
 		{
-        	
-        	vector<vector<int>>a=router1.routalg(0,0,0);
+        	vector<vector<pair<int,int>>>stpair(2,vector<pair<int,int>>());
+        	stpair[0].push_back(make_pair(0,1));
+        	stpair[0].push_back(make_pair(3,2));
+        	stpair[1].push_back(make_pair(1,2));
+        	stpair[1].push_back(make_pair(4,2));
+        	router2.updatS(stpair);
 			vector<vector<int>>b=router2.routalg(0,0,0);
 			int flag=0;
 			return make_pair(0,0);
@@ -171,7 +175,7 @@ class Graph
             	}*/
             //else
             {
-            	router1.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
+            	//router1.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
             	router2.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
             }
             return make_pair(redges,esigns);

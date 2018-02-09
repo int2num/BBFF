@@ -48,29 +48,42 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 	ncount=L[0]*S[0]+L[1]*S[1];
 	for(int i=0;i<nodenum*ncount;i++)
 		d[i]=INT_MAX/2,p[i]=-1;
+	int woffid=0;
 	for(int h=0;h<stpair.size();h++)
+		{
 		for(int k=0;k<L[h];k++)
 			{
-				int boff=k*S[h]*nodenum;
 				for(int i=0;i<S[h];i++)
 				{
-					int soff=i*nodenum;
 					for(int j=0;j<stpair[h].size();j++)
 						{
-						 d[boff+soff+stpair[h][i].first]=0;
-						 has[boff+soff+stpair[h][i].first]=0;
+						 d[count*nodenum+stpair[h][i].first]=0;
 						 count++;
 						}
 				}
 			}
+		}
+	for(int j=0;j<4;j++)
+	{
+		for(int i=0;i<nodenum;i++)
+			cout<<d[i+j*nodenum]<<" ";
+		cout<<endl;
+	}
 	for(int i=1;i<NF.size();i++)
 		NF[i]=L[i-1]*S[i-1];
+	nodeoff[0]=0;
+	nodeoff[1]=S[0]*L[0]*nodenum;
+	leveloff[0]=0;
+	leveloff[1]=L[0]*edges.size();
+	size[0]=edges.size()*L[0]*S[0];
+	size[1]=edges.size()*L[1]*S[1];
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 }
-void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf):L(2,0),S(2,0),NF(2,0)
+void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
 {
-	/*nodenum=ginf.pnodesize;
+	cout<<"init bellmanor"<<endl;
+	nodenum=ginf.pnodesize;
 	edges=ext.first;
 	vector<vector<int>>esigns;
 	esigns=ext.second;
@@ -129,62 +142,86 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 	cudaMemcpy(dev_has,has,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice);
-	cout<<nodenum<<endl;*/
+	cout<<nodenum<<endl;
 };
-Bellmanor::Bellmanor()
+Bellmanor::Bellmanor():L(2,0),S(2,0),NF(2,0),nodeoff(2,0),leveloff(2,0),size(2,0)
 {
 };
-__global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,int size,int *m,int round,int Leveloff,int numoff,int YE,int LY)
+__global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,int size,int *m,int round,int Leveloff,int numoff,int ye,int ly)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>size)return;	
-	int eid=(i%(E*LY));
+	int eid=(i%(E*ly));
 	int eeid=eid+Leveloff;
 	int s=st[eeid],t=te[eeid],weight=w[eeid];
 	if(weight<0)return;
-	int off=(i/(E*LY))*N+(eid/E)*N*YE+numoff;
+	int off=(i/(E*ly))*N+(eid/E)*N*ye+numoff;
 	//if(has[s+off]<round-1)return;
-	if(d[s+off]+weight<d[t+off])
+	if(d[s+off]+weight<d[t+off])  
 		{
 			d[t+off]=weight+d[s+off];
 			has[t+off]=round;
-			*m=1;
 		}
 }
-__global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round,int Leveloff,int numoff,int YE,int LY)
+__global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round,int Leveloff,int numoff,int ye,int ly)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>size)return;	
-	int eid=(i%(E*LY));
+	int eid=(i%(E*ly));
 	int eeid=eid+Leveloff;
 	int s=st[eeid],t=te[eeid],weight=w[eeid];
 	if(weight<0)return;
-	int off=(i/(E*LY))*N+(eid/E)*N*YE+numoff;
+	int off=(i/(E*ly))*N+(eid/E)*N*ye+numoff;
 	//if(has[s+off]<round-1)return;
 	if(d[s+off]+weight==d[t+off])
 		pre[t+off]=s+off;
 }
 vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 {
+	cout<<"inbellman"<<endl;
 	int kk=1;
 	time_t start,end;
 	start=clock();
-	int size1=edges.size()*L[0]*S[0];
-	cout<<"size is: "<<size<<endl;
-	*m=1;
+	*m1=1;
+	*m2=1;
 	int round=1;
 	cout<<"asdaasadadadasd"<<endl;
-	while(*m==1)
+	cudaStream_t stream0,stream1;
+	cudaStreamCreate(&stream0);
+	cudaStreamCreate(&stream1);
+	int flag1=0,flag2=0;
+	int cc=0;
+	//while(*m2==1)
+	for(int i=0;i<10;i++)
 	{
-		*m=0;
-		cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
-		bellmanhigh<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size1,dev_m1,round,0,0,S[0],0);
-	 	color<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size2,0,0,S[0],0);
-		round++;
-		cudaMemcpy(m1,dev_m2,sizeof(int),cudaMemcpyDeviceToHost);
+		
+		bellmanhigh<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[1],dev_m2,round,leveloff[1],nodeoff[1],S[1],L[1]);
+		bellmanhigh<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[0],dev_m2,round,leveloff[0],nodeoff[0],S[0],L[0]);
+		color<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[1],round,leveloff[1],nodeoff[1],S[1],L[1]);
+		color<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[0],round,leveloff[0],nodeoff[0],S[0],L[0]);
+		/**m2=0;
+		*m1=0;
+		if(flag2==0&&cc)cudaMemcpyAsync(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice,stream1);
+		if(flag2==0)bellmanhigh<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[1],dev_m2,round,leveloff[1],nodeoff[1],S[1],L[1]);
+		if(flag1==0)cudaMemcpyAsync(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice,stream0);
+		if(flag1==0)bellmanhigh<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[0],dev_m2,round,leveloff[0],nodeoff[0],S[0],L[0]);
+	 	//color<<<size[1]/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[1],round,leveloff[1],nodeoff[1],S[1],L[1]);
+		if(flag2==0)cudaMemcpyAsync(m2,dev_m2,sizeof(int),cudaMemcpyDeviceToHost,stream1);
+		if(flag2==0)cudaMemcpyAsync(m1,dev_m1,sizeof(int),cudaMemcpyDeviceToHost,stream0);
+		if(flag1==0)cudaStreamSynchronize(stream1);
+		if(*m2==0)flag2=1;
+		if(flag1==0)cudaStreamSynchronize(stream0);
+		if(*m1==0)flag1=1;*/
 	}
+	//cudaStreamSynchronize(stream1);
+	//cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	cudaStreamSynchronize(0);
+	for(int j=0;j<8;j++)
+		{for(int i=0;i<nodenum;i++)
+			cout<<d[i+j*nodenum]<<" ";
+		cout<<endl;
+		}
+	cout<<endl;
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;

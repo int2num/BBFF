@@ -13,11 +13,12 @@
 #define BS 5
 #define WD 8
 #ifndef LY 
-	#define LY 100
+	#define LY 4
 #endif
-#define LY1 50
-#define LY2 50
-#define YE 200
+#define PC 2
+#define LY1 2
+#define LY2 2
+#define YE 2
 #define IFHOP 1
 #define inf INT_MAX/2
 using namespace std;
@@ -221,6 +222,9 @@ class Bellmanor:public algbase
 		vector<int>S;
 		vector<int>NF;
 		int ncount;
+		vector<int>size;
+		vector<int>nodeoff;
+		vector<int>leveloff;
 		
 	public:
 		 Bellmanor();

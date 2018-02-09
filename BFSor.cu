@@ -75,6 +75,7 @@ void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>
 };
 BFSor::BFSor()
 {
+	
 };
 __global__ void BFSfast(int *st,int *te,int *d,int round,int E,int N,int size)
 {
