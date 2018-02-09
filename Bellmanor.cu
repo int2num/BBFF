@@ -48,7 +48,7 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 	int count=0;
 	ncount=L[0]*S[0]+L[1]*S[1];
 	for(int i=0;i<nodenum*ncount;i++)
-		d[i]=INT_MAX/2,p[i]=-1;
+		d[i]=100000,p[i]=-1;
 	int woffid=0;
 	for(int h=0;h<stpair.size();h++)
 		{
@@ -268,10 +268,12 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	for(int i=0;i<WD+1;i++)
 	{
 		bellmandu<<<size0/1024+1,1024,0,stream0>>>(dev_rudu,dev_rudw,dev_d,nodenum,size0,0,0,S[0],L[0],mm);
-		bellmandu<<<size1/1024+1,1024,0,stream1>>>(dev_rudu,dev_rudw,dev_d,nodenum,size1,size0,L[0],S[1],L[0],mm);
+		bellmandu<<<size1/1024+1,1024,0,stream1>>>(dev_rudu,dev_rudw,dev_d,nodenum,size1,size0,0,S[1],L[1],mm);
 	}
+	cudaStreamSynchronize(stream1);
+	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	/*for(int j=0;j<8;j++)
+	/*for(int j=0;j<200;j++)
 		{for(int i=0;i<nodenum;i++)
 			cout<<d[i+j*nodenum]<<" ";
 		cout<<endl;
