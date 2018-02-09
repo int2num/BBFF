@@ -34,15 +34,47 @@ void Bellmanor::topsort()
 	for(int i=0;i<order.size();i++)
 		ordernode.push_back(tmp[i].first);
 };
-void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
+void Bellmanor::updatE(vector<int>esigns)
 {
-	nodenum=ginf.pnodesize;
+	
+}
+void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
+{
+	L[0]=LY1;
+	L[1]=LY2;
+	S[0]=stpair[0].size();
+	S[1]=stpair[1].size();
+	int count=0;
+	ncount=L[0]*S[0]+L[1]*S[1];
+	for(int i=0;i<nodenum*ncount;i++)
+		d[i]=INT_MAX/2,p[i]=-1;
+	for(int h=0;h<stpair.size();h++)
+		for(int k=0;k<L[h];k++)
+			{
+				int boff=k*S[h]*nodenum;
+				for(int i=0;i<S[h];i++)
+				{
+					int soff=i*nodenum;
+					for(int j=0;j<stpair[h].size();j++)
+						{
+						 d[boff+soff+stpair[h][i].first]=0;
+						 has[boff+soff+stpair[h][i].first]=0;
+						 count++;
+						}
+				}
+			}
+	for(int i=1;i<NF.size();i++)
+		NF[i]=L[i-1]*S[i-1];
+	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+}
+void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf):L(2,0),S(2,0),NF(2,0)
+{
+	/*nodenum=ginf.pnodesize;
 	edges=ext.first;
 	vector<vector<int>>esigns;
 	esigns=ext.second;
 	stp=stpair;
-	mark=new int;
-	*mark=0;
 	W=WD+1;
 	st=new int[edges.size()*LY];
 	te=new int[edges.size()*LY];
@@ -50,7 +82,9 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 	has=new int[nodenum*LY*YE];
 	p=new int[nodenum*LY*YE];
 	w=new int[edges.size()*LY];
-	m=new int;
+	m1=new int;
+	m2=new int;
+	*m1=0,*m2=0;
 	esignes=new int[edges.size()*LY];
 	vector<vector<int>>nein(nodenum*LY,vector<int>());
 	neibn=nein;
@@ -74,56 +108,42 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 					te[count]=neibn[i][j];
 				count++;
 			}
-	for(int i=0;i<nodenum*LY*YE;i++)
-		d[i]=INT_MAX/2,p[i]=-1,has[i]=-1;
 	int cc=0;
 	for(int k=0;k<LY;k++)
 		for(int i=0;i<edges.size();i++)
 			w[cc++]=esigns[k][i];
-	cout<<cc<<" "<<edges.size()<<endl;
-	for(int k=0;k<LY;k++)
-	{
-		int boff=k*YE*nodenum;
-		for(int i=0;i<YE;i++)
-		{
-			int soff=i*nodenum;
-			for(int j=0;j<stpair.size();j++)
-				{d[boff+soff+stpair[i].first]=0;
-				 has[boff+soff+stpair[i].first]=0;
-				}
-		}
-	}
 	cudaMalloc((void**)&dev_st,LY*edges.size()*sizeof(int));
 	cudaMalloc((void**)&dev_te,LY*edges.size()*sizeof(int));
 	cudaMalloc((void**)&dev_d,YE*LY*nodenum*sizeof(int));
 	cudaMalloc((void**)&dev_p,YE*LY*nodenum*sizeof(int));
 	cudaMalloc((void**)&dev_has,YE*LY*nodenum*sizeof(int));
 	cudaMalloc((void**)&dev_w,LY*edges.size()*sizeof(int));
-	cudaMalloc((void**)&dev_m,sizeof(int));
+	cudaMalloc((void**)&dev_m1,sizeof(int));
+	cudaMalloc((void**)&dev_m2,sizeof(int));
 	if(dev_d==NULL) {
 		printf("couldn't allocate %d int's.\n");
 	}
 	cudaMemcpy(dev_te,te,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_st,st,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_w,w,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_d,d,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_has,has,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_p,p,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_m,m,sizeof(int),cudaMemcpyHostToDevice);
-	cout<<nodenum<<endl;
+	cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice);
+	cout<<nodenum<<endl;*/
 };
 Bellmanor::Bellmanor()
 {
 };
-__global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,int size,int *m,int round)
+__global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,int size,int *m,int round,int Leveloff,int numoff,int YE,int LY)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>size)return;	
 	int eid=(i%(E*LY));
-	int s=st[eid],t=te[eid],weight=w[eid];
+	int eeid=eid+Leveloff;
+	int s=st[eeid],t=te[eeid],weight=w[eeid];
 	if(weight<0)return;
-	int off=(i/(E*LY))*N+(eid/E)*N*YE;
-	if(has[s+off]<round-1)return;
+	int off=(i/(E*LY))*N+(eid/E)*N*YE+numoff;
+	//if(has[s+off]<round-1)return;
 	if(d[s+off]+weight<d[t+off])
 		{
 			d[t+off]=weight+d[s+off];
@@ -131,15 +151,16 @@ __global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,i
 			*m=1;
 		}
 }
-__global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round)
+__global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round,int Leveloff,int numoff,int YE,int LY)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>size)return;	
 	int eid=(i%(E*LY));
-	int s=st[eid],t=te[eid],weight=w[eid];
+	int eeid=eid+Leveloff;
+	int s=st[eeid],t=te[eeid],weight=w[eeid];
 	if(weight<0)return;
-	int off=(i/(E*LY))*N+(eid/E)*N*YE;
-	if(has[s+off]<round-1)return;
+	int off=(i/(E*LY))*N+(eid/E)*N*YE+numoff;
+	//if(has[s+off]<round-1)return;
 	if(d[s+off]+weight==d[t+off])
 		pre[t+off]=s+off;
 }
@@ -148,18 +169,19 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	int kk=1;
 	time_t start,end;
 	start=clock();
-	int size=edges.size()*LY*YE;
+	int size1=edges.size()*L[0]*S[0];
 	cout<<"size is: "<<size<<endl;
 	*m=1;
 	int round=1;
+	cout<<"asdaasadadadasd"<<endl;
 	while(*m==1)
 	{
 		*m=0;
-		cudaMemcpy(dev_m,m,sizeof(int),cudaMemcpyHostToDevice);
-		bellmanhigh<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size,dev_m,round);
-	 	color<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size,round);
+		cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
+		bellmanhigh<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size1,dev_m1,round,0,0,S[0],0);
+	 	color<<<size/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size2,0,0,S[0],0);
 		round++;
-		cudaMemcpy(m,dev_m,sizeof(int),cudaMemcpyDeviceToHost);
+		cudaMemcpy(m1,dev_m2,sizeof(int),cudaMemcpyDeviceToHost);
 	}
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(0);

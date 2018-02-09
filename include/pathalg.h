@@ -15,7 +15,9 @@
 #ifndef LY 
 	#define LY 100
 #endif
-#define YE 100
+#define LY1 50
+#define LY2 50
+#define YE 200
 #define IFHOP 1
 #define inf INT_MAX/2
 using namespace std;
@@ -34,6 +36,8 @@ class algbase {
     public:
         algbase(){};
         virtual bool cutcake(int)=0;
+        virtual void updatE(vector<int>esigns){};
+	 	virtual void updatS(vector<vector<pair<int,int>>>&stpair){};	 	 
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo)=0;
 	 	virtual vector<vector<int>> routalg(int s,int t,int bw)=0;
 	 	virtual pair<int,int> prepush(int s,int t,int bw)=0;
@@ -156,13 +160,8 @@ class PBellmanor:public algbase{
 						{
 							int prn=tnode;
 							while(prn!=s)
-							{
-								//cout<<prn<<" ";
 								prn=peg[prn];
-							}
-							//cout<<prn<<" ";
 						}
-						//cout<<endl;
         			}
         		}
         		end=clock();
@@ -184,7 +183,8 @@ class Bellmanor:public algbase
 {
 	private:
 		edge *dev_edges,*aedges;
-		int*dev_m,*m,*dev_pre,*pre,*pred,*dev_pred,*dev_d,*d,*dev_mask,*mask,*dev_leveln,*leveln;
+		int*dev_m1,*m1,*dev_pre,*pre,*pred,*dev_pred,*dev_d,*d,*dev_mask,*mask,*dev_leveln,*leveln;
+		int*dev_m2,*m2;
 		int*dev_rela,*rela;
 		int presize,dsize,masksize,levelnsize;
 		int edgesize,nodenum,pesize,pnodesize;
@@ -216,13 +216,21 @@ class Bellmanor:public algbase
 		vector<vector<int>>neibn;
 		int *mark,*dev_mark;
 		vector<pair<int,int>>stp;
+		//
+		vector<int>L;
+		vector<int>S;
+		vector<int>NF;
+		int ncount;
+		
 	public:
-		Bellmanor();
+		 Bellmanor();
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
 	 	 virtual vector<vector<int>> routalg(int s,int t,int bw);
 	 	 virtual ~Bellmanor(){}
+	 	 virtual void updatE(vector<int>esigns);
+	 	 virtual void updatS(vector<vector<pair<int,int>>>&stpair);	 	 
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
 };
 class PBFSor:public algbase{
