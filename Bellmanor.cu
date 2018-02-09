@@ -160,7 +160,8 @@ __global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,i
 	if(d[s+off]+weight<d[t+off])  
 		{
 			d[t+off]=weight+d[s+off];
-			has[t+off]=round;
+			//has[t+off]=round;
+			*m=1;
 		}
 }
 __global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round,int Leveloff,int numoff,int ye,int ly)
@@ -185,36 +186,27 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	*m1=1;
 	*m2=1;
 	int round=1;
-	cout<<"asdaasadadadasd"<<endl;
+	cout<<"fuck wx!"<<endl;
 	cudaStream_t stream0,stream1;
 	cudaStreamCreate(&stream0);
 	cudaStreamCreate(&stream1);
 	int flag1=0,flag2=0;
 	int cc=0;
-	//while(*m2==1)
-	for(int i=0;i<10;i++)
+	while(*m2==1||*m1==1)
+	//for(int i=0;i<10;i++)
 	{
-		
+		*m2=0,*m1=0;
+		cudaMemcpyAsync(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice,stream1);
 		bellmanhigh<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[1],dev_m2,round,leveloff[1],nodeoff[1],S[1],L[1]);
+		cudaMemcpyAsync(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice,stream0);
 		bellmanhigh<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[0],dev_m2,round,leveloff[0],nodeoff[0],S[0],L[0]);
 		color<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[1],round,leveloff[1],nodeoff[1],S[1],L[1]);
+		cudaMemcpyAsync(m2,dev_m2,sizeof(int),cudaMemcpyDeviceToHost,stream1);
 		color<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[0],round,leveloff[0],nodeoff[0],S[0],L[0]);
-		/**m2=0;
-		*m1=0;
-		if(flag2==0&&cc)cudaMemcpyAsync(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice,stream1);
-		if(flag2==0)bellmanhigh<<<size[1]/1024+1,1024,0,stream1>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[1],dev_m2,round,leveloff[1],nodeoff[1],S[1],L[1]);
-		if(flag1==0)cudaMemcpyAsync(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice,stream0);
-		if(flag1==0)bellmanhigh<<<size[0]/1024+1,1024,0,stream0>>>(dev_st,dev_te,dev_d,dev_has,dev_w,edges.size(),nodenum,size[0],dev_m2,round,leveloff[0],nodeoff[0],S[0],L[0]);
-	 	//color<<<size[1]/1024+1,1024>>>(dev_st,dev_te,dev_d,dev_p,dev_has,dev_w,edges.size(),nodenum,size[1],round,leveloff[1],nodeoff[1],S[1],L[1]);
-		if(flag2==0)cudaMemcpyAsync(m2,dev_m2,sizeof(int),cudaMemcpyDeviceToHost,stream1);
-		if(flag2==0)cudaMemcpyAsync(m1,dev_m1,sizeof(int),cudaMemcpyDeviceToHost,stream0);
-		if(flag1==0)cudaStreamSynchronize(stream1);
-		if(*m2==0)flag2=1;
-		if(flag1==0)cudaStreamSynchronize(stream0);
-		if(*m1==0)flag1=1;*/
+		cudaMemcpyAsync(m1,dev_m1,sizeof(int),cudaMemcpyDeviceToHost,stream0);
+		cudaStreamSynchronize(stream0);
+		cudaStreamSynchronize(stream0);
 	}
-	//cudaStreamSynchronize(stream1);
-	//cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	for(int j=0;j<8;j++)
 		{for(int i=0;i<nodenum;i++)
