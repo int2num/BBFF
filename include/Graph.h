@@ -44,8 +44,10 @@ class Graph
         	stpair[0].push_back(make_pair(3,2));
         	stpair[1].push_back(make_pair(1,2));
         	stpair[1].push_back(make_pair(4,2));
+        	router1.updatS(stpair);
+			vector<vector<int>>b=router1.routalg(0,0,0);
         	router2.updatS(stpair);
-			vector<vector<int>>b=router2.routalg(0,0,0);
+			vector<vector<int>>a=router2.routalg(0,0,0);
 			int flag=0;
 			return make_pair(0,0);
 		}
@@ -175,7 +177,7 @@ class Graph
             	}*/
             //else
             {
-            	//router1.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
+            	router1.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
             	router2.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
             }
             return make_pair(redges,esigns);

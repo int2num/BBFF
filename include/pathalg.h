@@ -13,11 +13,11 @@
 #define BS 5
 #define WD 8
 #ifndef LY 
-	#define LY 4
+	#define LY 100
 #endif
 #define PC 2
-#define LY1 2
-#define LY2 2
+#define LY1 50
+#define LY2 50
 #define YE 2
 #define IFHOP 1
 #define inf INT_MAX/2
@@ -62,7 +62,15 @@ class PBellmanor:public algbase{
 		vector<int>esign;
 		vector<pair<int,int>>stes;
 		int W;
-		PBellmanor(){};
+		vector<vector<pair<int,int>>>stpairs;
+		vector<int>L;
+		PBellmanor():L(3,0){};
+        virtual void updatS(vector<vector<pair<int,int>>>&stpair){
+        	stpairs=stpair;
+        	L[0]=0;
+        	L[1]=LY1;
+        	L[2]=LY;
+        }
         void topsort()
         {
         }
@@ -115,56 +123,62 @@ class PBellmanor:public algbase{
         		time_t start,end;
         		start=clock();
         		vector<vector<int>>result(LY,vector<int>());
-        		for(int k=0;k<LY;k++)
-        		{
-        			int tnode=-1;
-    				vector<int>d(nodenum,INT_MAX);
-    				vector<int>peg(nodenum,-1);
-    				vector<int>flag(nodenum,0);
-        			for(int l=0;l<YE;l++)
-        			{	
-        				int s=stes[l].first;
-        				int t=stes[l].second;
-						for (int i = 0;i<nodenum;i++)
-							if (i == s)
-								d[i]=0;
-							else
-								d[i]=INT_MAX/2;
-						for (int i=0; i<nodenum; i++)
-						{
-							flag[i]=0;
-							peg[i]=-1;
-						}
-						int cur = s;
-						Heap heap(nodenum);
-						for (int i = 0;i<nodenum;i++)
-							heap.push(i, d[i]);
-						do{
-							int cur = heap.pop();
-							flag[cur] = 1;
-							if (cur == t)
-								{	
-									tnode=t;
-									break;
-								}
-							int size = nein[k][cur].size();
-							for (int i = 0;i<size; i++){
-									int to=nein[k][cur][i];
-									if (flag[to] ==0&&d[to]>(d[cur]+neie[k][cur][i])&&neie[k][cur][i]>0){
-										d[to] = d[cur]+neie[k][cur][i];
-										heap.update(to, d[to]);
-										peg[to]=cur;
-								}
+        		for(int y=1;y<PC;y++)
+					for(int k=L[y-1];k<L[y];k++)
+					{
+						int tnode=-1;
+						vector<int>d(nodenum,INT_MAX);
+						vector<int>peg(nodenum,-1);
+						vector<int>flag(nodenum,0);
+						for(int l=0;l<stpairs[y-1].size();l++)
+						{	
+							int s=stpairs[y-1][l].first;
+							int t=stpairs[y-1][l].second;
+							for (int i = 0;i<nodenum;i++)
+								if (i == s)
+									d[i]=0;
+								else
+									d[i]=INT_MAX/2;
+							for (int i=0; i<nodenum; i++)
+							{
+								flag[i]=0;
+								peg[i]=-1;
 							}
-						} while (!heap.empty());
-						if(tnode>=0)
-						{
-							int prn=tnode;
-							while(prn!=s)
-								prn=peg[prn];
+							int cur = s;
+							Heap heap(nodenum);
+							for (int i = 0;i<nodenum;i++)
+								heap.push(i, d[i]);
+							do{
+								int cur = heap.pop();
+								flag[cur] = 1;
+								if (cur == t)
+									{	
+										tnode=t;
+										break;
+									}
+								int size = nein[k][cur].size();
+								for (int i = 0;i<size; i++){
+										int to=nein[k][cur][i];
+										if (flag[to] ==0&&d[to]>(d[cur]+neie[k][cur][i])&&neie[k][cur][i]>0){
+											d[to] = d[cur]+neie[k][cur][i];
+											heap.update(to, d[to]);
+											peg[to]=cur;
+									}
+								}
+							} while (!heap.empty());
+							if(tnode>=0)
+							{
+								int prn=tnode;
+								while(prn!=s)
+								{
+									//cout<<prn<<" ";
+									prn=peg[prn];
+								}
+								//cout<<prn<<" ";
+							}
+							//cout<<endl;
 						}
-        			}
-        		}
+					}
         		end=clock();
         		cout<<"cpu time is: "<<end-start<<endl;
         		cout<<"good sofor"<<endl;
@@ -254,6 +268,8 @@ class PBFSor:public algbase{
 		vector<vector<vector<int>>>nein;
 		vector<int>esign;
 		vector<pair<int,int>>stes;
+		vector<vector<pair<int,int>>>stpairs;
+		vector<int>L;
 		int W;
 		PBFSor(){};
         void topsort()
@@ -311,14 +327,12 @@ class PBFSor:public algbase{
 			{
 				for(int l=0;l<stes.size();l++)
 				{
-					//cout<<"in it "<<endl;
 					int tnode=-1;
 					int tv=WD+1;
 					vector<int>dist(pnodesize,INT_MAX);
 					vector<int>pre(pnodesize,-1);
 					int vflag=1;
 					priority_queue<pair<int, int>,vector<pair<int,int>>,std::less<std::pair<int, int>>>que;
-					//queue<pair<int,int>>que;
 					int s=stes[l].first;
 					int t=stes[l].second;
 					que.push(make_pair(s,0));
@@ -347,6 +361,7 @@ class PBFSor:public algbase{
 					}
 					int prn=tnode;
 					int len=0;
+					//cout<<"tnode is: "<<tnode<<endl;
 					if(tnode>=0)
 					{
 						int prn=tnode;

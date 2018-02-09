@@ -40,6 +40,7 @@ void Bellmanor::updatE(vector<int>esigns)
 }
 void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 {
+	cout<<"inasd asd"<<endl;
 	L[0]=LY1;
 	L[1]=LY2;
 	S[0]=stpair[0].size();
@@ -53,22 +54,20 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 		{
 		for(int k=0;k<L[h];k++)
 			{
-				for(int i=0;i<S[h];i++)
+			for(int j=0;j<stpair[h].size();j++)
 				{
-					for(int j=0;j<stpair[h].size();j++)
-						{
-						 d[count*nodenum+stpair[h][i].first]=0;
-						 count++;
-						}
+				 d[count*nodenum+stpair[h][j].first]=0;
+				 count++;
 				}
 			}
 		}
-	for(int j=0;j<4;j++)
+	/*for(int j=0;j<4;j++)
 	{
 		for(int i=0;i<nodenum;i++)
 			cout<<d[i+j*nodenum]<<" ";
 		cout<<endl;
-	}
+	}*/
+	cout<<"here it is "<<endl;
 	for(int i=1;i<NF.size();i++)
 		NF[i]=L[i-1]*S[i-1];
 	nodeoff[0]=0;
@@ -77,8 +76,11 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 	leveloff[1]=L[0]*edges.size();
 	size[0]=edges.size()*L[0]*S[0];
 	size[1]=edges.size()*L[1]*S[1];
+	cout<<"asd"<<endl;
+	cout<<"ncount is "<<count <<endl;
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cout<<"out!!!!"<<endl;
 }
 void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
 {
@@ -142,7 +144,7 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 	cudaMemcpy(dev_has,has,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice);
-	cout<<nodenum<<endl;
+	//cout<<nodenum<<endl;
 };
 Bellmanor::Bellmanor():L(2,0),S(2,0),NF(2,0),nodeoff(2,0),leveloff(2,0),size(2,0)
 {
@@ -208,11 +210,11 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 		cudaStreamSynchronize(stream0);
 	}
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	for(int j=0;j<8;j++)
+	/*for(int j=0;j<8;j++)
 		{for(int i=0;i<nodenum;i++)
 			cout<<d[i+j*nodenum]<<" ";
 		cout<<endl;
-		}
+		}*/
 	cout<<endl;
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
