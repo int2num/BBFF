@@ -40,10 +40,9 @@ class Graph
         pair<int,int>routalg(int s,int t,int bw)
 		{
         	vector<vector<pair<int,int>>>stpair(2,vector<pair<int,int>>());
-        	stpair[0].push_back(make_pair(0,1));
-        	stpair[0].push_back(make_pair(3,2));
-        	stpair[1].push_back(make_pair(1,2));
-        	stpair[1].push_back(make_pair(4,2));
+        	for(int i=0;i<stpair.size();i++)
+				for(int j=0;j<2;j++)
+					stpair[i].push_back(make_pair(j,rand()%100));
         	router1.updatS(stpair);
 			vector<vector<int>>b=router1.routalg(0,0,0);
         	router2.updatS(stpair);
@@ -156,7 +155,7 @@ class Graph
             //asdasdasdasd.
             vector<pair<int,int>> stpair;
             int count=0;
-            for(int i=0;i<YE;i++)
+           /* for(int i=0;i<YE;i++)
             {
             	int t=i;
             	while(t==i)t=rand()%(n/W);

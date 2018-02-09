@@ -13,11 +13,11 @@
 #define BS 5
 #define WD 8
 #ifndef LY 
-	#define LY 100
+	#define LY 4
 #endif
 #define PC 2
-#define LY1 50
-#define LY2 50
+#define LY1 2
+#define LY2 2
 #define YE 2
 #define IFHOP 1
 #define inf INT_MAX/2
@@ -230,6 +230,9 @@ class Bellmanor:public algbase
 		int*esignes;
 		vector<vector<int>>neibn;
 		int *mark,*dev_mark;
+		int*rudu,*dev_rudu;
+		int*rudw,*dev_rudw;
+		int mm;
 		vector<pair<int,int>>stp;
 		//
 		vector<int>L;
