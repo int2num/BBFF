@@ -168,7 +168,7 @@ class PBellmanor:public algbase{
 										}
 								}
 							} while (!heap.empty());
-							cout<<" "<<tnode<<" "<<"d:"<<d[tnode]<<endl;
+							//cout<<" "<<tnode<<" "<<"d:"<<d[tnode]<<endl;
 							//cout<<"tnode is :"<<tnode<<" "<<tnode/W<<" "<<t<<endl;
 							/*if(tnode!=s*(WD+1))
 							{

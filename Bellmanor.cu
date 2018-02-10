@@ -286,12 +286,12 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	for(int i=0;i<8;i++)
+	/*for(int i=0;i<8;i++)
 		{
 			for(int j=0;j<nodenum;j++)
 				cout<<d[i*nodenum+j]<<" ";
 			cout<<endl;
-		}
+		}*./
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;
