@@ -33,8 +33,6 @@ class Graph
         algbase&router2;
         pair<int,int>prepush(int s,int t,int n,ofstream& out)
         {
-        	//pair<int,int>a=router1.prepush(s,t,0);
-        	//pair<int,int>b=router2.prepush(s,t,0);
         	return make_pair(0,0);
         }
         pair<int,int>routalg(int s,int t,int bw)
@@ -46,8 +44,6 @@ class Graph
 					stpair[i].push_back(make_pair(j+1,8));
         	router1.updatS(stpair);
 			vector<vector<int>>b=router1.routalg(0,0,0);
-        	//router2.updatS(stpair);
-			//vector<vector<int>>a=router2.routalg(0,0,0);
 			int flag=0;
 			return make_pair(0,0);
 		}
@@ -123,14 +119,11 @@ class Graph
             		//else
             			esigns[i].push_back(rand()%10+1);
             	}
-            cout<<redges[0].s<<" "<<redges[0].t<<endl;
             //assdsasd.
             int W=WD+1;
-            cout<<"W is "<<W<<endl;
             vector<vector<int>>nesigns(LY,vector<int>());
             vector<edge>nedges;
             n=n*W;
-            cout<<"here!"<<endl;
             for(int i=0;i<redges.size();i++)
             {
             	int s=redges[i].s;
@@ -142,7 +135,6 @@ class Graph
             		nedges.push_back(edge(ss,tt,1));
             	}
             }
-            cout<<"there assa"<<endl;
             for(int k=0;k<LY;k++)
 				for(int i=0;i<redges.size();i++)
 				{
@@ -151,7 +143,6 @@ class Graph
 						nesigns[k].push_back(esigns[k][i]);
 					}
 				}
-            cout<<"dsaaaaaaaaaaaad asd"<<endl;
             //asdasdasdasd.
             vector<pair<int,int>> stpair;
             stpair.push_back(make_pair(1,5));

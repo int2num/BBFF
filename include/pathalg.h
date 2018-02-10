@@ -274,6 +274,9 @@ class PBFSor:public algbase{
         }
         virtual bool cutcake(int index){
         }
+        virtual void updatE(vector<int>esigns){
+        	
+        };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
         	maxbw=500;
         	rela=relate;
@@ -339,7 +342,7 @@ class PBFSor:public algbase{
 					vector<int>pre(nodenum,-1);
 					int s=stpairs[y-1][l].first;
 					int t=stpairs[y-1][l].second;
-					cout<<BFS(s,t,dist,pre,neie[k],nein[k])<<endl;
+					BFS(s,t,dist,pre,neie[k],nein[k]);
 				}
 			}
 			end=clock();
