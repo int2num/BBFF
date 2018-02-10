@@ -197,7 +197,7 @@ __global__ void bellmanhigh(int *st,int *te,int *d,int *has,int *w,int E,int N,i
 			*m=1;
 		}
 }
-__global__ void bellmandu(int *rudu,int*rudw,int *d,int N,int size,int sizeoff,int leveloff,int ye,int ly,int mm)
+__global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int sizeoff,int leveloff,int ye,int ly,int mm)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>=size)return;
@@ -207,16 +207,19 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int N,int size,int sizeoff,i
 	int roff=(i%N+lyy*N)*mm;
 	i+=sizeoff;
 	int dm=d[i];
+	int mark=-1;
 	for(int k=0;k<mm;k++)
 		if(rudu[roff+k]<INT_MAX)
 		{
 			int node=rudu[roff+k]+off;
 			if(rudw[roff+k]<0)continue;
 			if(dm>d[node]+rudw[roff+k])
-				dm=d[node]+rudw[roff+k];
+				{dm=d[node]+rudw[roff+k];
+				mark=k;
+				}
 		}
 	if(d[i]>dm)
-		d[i]=dm;
+		d[i]=dm,p[i]=k;
 	//if(sizeoff>0)
 		//d[i]=0;
 }
