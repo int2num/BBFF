@@ -219,7 +219,7 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 				}
 		}
 	if(d[i]>dm)
-		d[i]=dm,p[i]=k;
+		d[i]=dm,p[i]=mark;
 	//if(sizeoff>0)
 		//d[i]=0;
 }
@@ -272,8 +272,8 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	cout<<"l1:"<<L[1]<<endl;
 	for(int i=0;i<WD+1;i++)
 	{
-		bellmandu<<<size0/1024+1,1024,0,stream0>>>(dev_rudu,dev_rudw,dev_d,nodenum,size0,0,0,S[0],L[0],mm);
-		bellmandu<<<size1/1024+1,1024,0,stream1>>>(dev_rudu,dev_rudw,dev_d,nodenum,size1,size0,0,S[1],L[1],mm);
+		bellmandu<<<size0/1024+1,1024,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size0,0,0,S[0],L[0],mm);
+		bellmandu<<<size1/1024+1,1024,0,stream1>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size1,size0,0,S[1],L[1],mm);
 	}
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
