@@ -9,6 +9,7 @@
 #include<queue>
 #include"Heap.h"
 #include <algorithm>
+#include<map>
 #include"BFS.h"
 #define ML 50
 #define BS 5
@@ -26,6 +27,7 @@
 using namespace std;
 struct Rute{
 	int s,t;
+	int id;
 	int hops;
 	int ly;
 	vector<int>routes;
@@ -34,13 +36,13 @@ struct Rute{
 struct Sot{
 	int s;
 	set<int>ts;
-	map<int,int>mmp;
+	map<int,int>mmpid;
 	int size;
 	Sot(int s=0){size=0;};
 	bool push(int t,int i){
 		if(t==s)return false;
 		ts.insert(t);
-		mmp[t]=i;
+		mmpid[t]=i;
 		size++;
 	}
 };
