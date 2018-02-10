@@ -46,8 +46,8 @@ class Graph
 					stpair[i].push_back(make_pair(j+1,8));
         	router1.updatS(stpair);
 			vector<vector<int>>b=router1.routalg(0,0,0);
-        	router2.updatS(stpair);
-			vector<vector<int>>a=router2.routalg(0,0,0);
+        	//router2.updatS(stpair);
+			//vector<vector<int>>a=router2.routalg(0,0,0);
 			int flag=0;
 			return make_pair(0,0);
 		}

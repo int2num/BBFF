@@ -9,6 +9,7 @@
 #include<queue>
 #include"Heap.h"
 #include <algorithm>
+#include"BFS.h"
 #define ML 50
 #define BS 5
 #define WD 10
@@ -110,43 +111,11 @@ class PBellmanor:public algbase{
 						int tnode=-1;
 						vector<int>d(nodenum,INT_MAX);
 						vector<int>peg(nodenum,-1);
-						vector<int>flag(nodenum,0);
 						for(int l=0;l<stpairs[y-1].size();l++)
 						{	
 							int s=stpairs[y-1][l].first*(WD+1);
 							int t=stpairs[y-1][l].second;
-							for (int i = 0;i<nodenum;i++)
-								if (i == s)
-									d[i]=0;
-								else
-									d[i]=INT_MAX/2;
-							for (int i=0; i<nodenum; i++)
-							{
-								flag[i]=0;
-								peg[i]=-1;
-							}
-							int cur = s;
-							Heap heap(nodenum);
-							for (int i = 0;i<nodenum;i++)
-								heap.push(i, d[i]);
-							do{
-								int cur = heap.pop();
-								flag[cur] = 1;
-								if (cur/(WD+1) == t)
-									{	
-										tnode=cur;
-										break;
-									}
-								int size = nein[k][cur].size();
-								for (int i = 0;i<size; i++){
-										int to=nein[k][cur][i];
-										if (flag[to] ==0&&d[to]>(d[cur]+neie[k][cur][i])&&neie[k][cur][i]>0){
-											d[to] = d[cur]+neie[k][cur][i];
-											heap.update(to, d[to]);
-											peg[to]=cur;
-										}
-								}
-							} while (!heap.empty());
+							dijkstra(s,t,d,peg,neie[k],nein[k],nodenum,WD);
 						}
 					}
         		end=clock();
@@ -299,7 +268,7 @@ class PBFSor:public algbase{
 		vector<vector<pair<int,int>>>stpairs;
 		vector<int>L;
 		int W;
-		PBFSor(){};
+		PBFSor():L(3,0){};
         void topsort()
         {
         }
@@ -328,6 +297,7 @@ class PBFSor:public algbase{
     		pre=pp;
 			pesize=edges.size();
 			W=WD+1;
+			cout<<"what f"<<endl;
 			for(int k=0;k<LY;k++)
 			{
 				vector<vector<int>>tmpn(nodenum,vector<int>());
@@ -346,65 +316,30 @@ class PBFSor:public algbase{
 				nein.push_back(tmpn);
 			}
         }
+        virtual void updatS(vector<vector<pair<int,int>>>&stpair){
+               	stpairs=stpair;
+               	L[0]=0;
+               	L[1]=LY1;
+               	L[2]=LY;
+               }
         virtual vector<vector<int>> routalg(int s,int t,int bw){
         	cout<<"in BFS rout alg"<<endl;
 			time_t start,end;
 			start=clock();
 			vector<vector<int>>result(LY,vector<int>());
 			cout<<"stes size: "<<stes.size()<<endl;
-			for(int k=0;k<LY;k++)
+			for(int y=1;y<PC+1;y++)
+			for(int k=L[y-1];k<L[y];k++)
 			{
-				for(int l=0;l<stes.size();l++)
+				for(int l=0;l<stpairs[y-1].size();l++)
 				{
 					int tnode=-1;
 					int tv=WD+1;
 					vector<int>dist(nodenum,INT_MAX);
 					vector<int>pre(nodenum,-1);
-					int vflag=1;
-					priority_queue<pair<int, int>,vector<pair<int,int>>,std::less<std::pair<int, int>>>que;
-					int s=stes[l].first;
-					int t=stes[l].second;
-					cout<<s<<" "<<t<<" ";
-					que.push(make_pair(s,0));
-					dist[s]=0;
-					while(!que.empty()&&vflag)
-					{
-						int node=que.top().first;
-						int v=que.top().second;
-						que.pop();
-						for(int i=0;i<nein[k][node].size();i++)
-						{
-							if(neie[k][node][i]>0)
-							{	
-								int to=nein[k][node][i];
-								if(dist[to]>dist[node]+1)
-								{
-									pre[to]=node;
-									dist[to]=dist[node]+1;
-									que.push(make_pair(to,dist[to]));
-								}
-								else
-									continue;
-								if(to==t){tnode=to;tv=v+1;vflag=0;break;}
-							}
-						}
-					}
-					cout<<dist[tnode]<<endl;
-					int prn=tnode;
-					int len=0;
-					//cout<<"tnode is: "<<tnode<<endl;
-					if(tnode>=0)
-					{
-						int prn=tnode;
-						while(prn!=s)
-						{
-							//cout<<prn<<" ";
-							prn=pre[prn];
-						}
-						//cout<<prn<<" ";
-					}
-					//cout<<endl;
-					result[k].push_back(tv);
+					int s=stpairs[y-1][l].first;
+					int t=stpairs[y-1][l].second;
+					cout<<BFS(s,t,dist,pre,neie[k],nein[k])<<endl;
 				}
 			}
 			end=clock();

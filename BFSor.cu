@@ -45,6 +45,7 @@ void BFSor::updatS(vector<vector<pair<int,int>>>&stpair)
 }
 void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
 {
+	cout<<"in BFS init"<<endl;
 	nodenum=ginf.pnodesize;
 	edges=ext.first;
 	vector<vector<int>>esigns;
