@@ -201,22 +201,24 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int N,int size,int sizeoff,i
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>=size)return;
-	i+=sizeoff;
 	int lyy=i/(ye*N)+leveloff;
 	int yee=(i%(ye*N))/N;
 	int off=lyy*N*ye+yee*N;
 	int roff=(i%N+lyy*N)*mm;
+	i+=sizeoff;
 	int dm=d[i];
 	for(int k=0;k<mm;k++)
 		if(rudu[roff+k]<INT_MAX)
 		{
 			int node=rudu[roff+k]+off;
-			if(rudw[i*mm+k]<0)continue;
+			if(rudw[roff+k]<0)continue;
 			if(dm>d[node]+rudw[roff+k])
 				dm=d[node]+rudw[roff+k];
 		}
 	if(d[i]>dm)
 		d[i]=dm;
+	//if(sizeoff>0)
+		//d[i]=0;
 }
 __global__ void color(int *st,int *te,int *d,int *pre,int *has,int *w,int E,int N,int size,int round,int Leveloff,int numoff,int ye,int ly)
 {
@@ -277,8 +279,8 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 		{for(int i=0;i<nodenum;i++)
 			cout<<d[i+j*nodenum]<<" ";
 		cout<<endl;
-		}
-	cout<<endl;*/
+		}*/
+	cout<<endl;
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;
