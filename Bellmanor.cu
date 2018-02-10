@@ -45,8 +45,10 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 	L[1]=LY2;
 	S[0]=stpair[0].size();
 	S[1]=stpair[1].size();
+	stps=stpair;
 	int count=0;
 	ncount=L[0]*S[0]+L[1]*S[1];
+	cout<<"ncount is "<<ncount<<endl;
 	for(int i=0;i<nodenum*ncount;i++)
 		d[i]=100000,p[i]=-1;
 	int woffid=0;
@@ -56,10 +58,16 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 			{
 			for(int j=0;j<stpair[h].size();j++)
 				{
-				 d[count*nodenum+stpair[h][j].first]=0;
+				 d[count*nodenum+stpair[h][j].first*(WD+1)]=0;
 				 count++;
 				}
 			}
+		}
+	for(int i=4;i<8;i++)
+		{
+			for(int j=0;j<nodenum;j++)
+				cout<<d[i*nodenum+j]<<" ";
+			cout<<endl;
 		}
 	cout<<"here it is "<<endl;
 	for(int i=1;i<NF.size();i++)
@@ -272,18 +280,18 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	cout<<"l1:"<<L[1]<<endl;
 	for(int i=0;i<WD+1;i++)
 	{
-		bellmandu<<<size0/1024+1,1024,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size0,0,0,S[0],L[0],mm);
-		bellmandu<<<size1/1024+1,1024,0,stream1>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size1,size0,0,S[1],L[1],mm);
+		bellmandu<<<size0/512+1,512,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size0,0,0,S[0],L[0],mm);
+		bellmandu<<<size1/512+1,512,0,stream1>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,size1,size0,L[0],S[1],L[1],mm);
 	}
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	/*for(int j=0;j<200;j++)
-		{for(int i=0;i<nodenum;i++)
-			cout<<d[i+j*nodenum]<<" ";
-		cout<<endl;
-		}*/
-	cout<<endl;
+	for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<nodenum;j++)
+				cout<<d[i*nodenum+j]<<" ";
+			cout<<endl;
+		}
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;

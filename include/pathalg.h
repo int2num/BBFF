@@ -11,14 +11,14 @@
 #include <algorithm>
 #define ML 50
 #define BS 5
-#define WD 8
+#define WD 3
 #ifndef LY 
-	#define LY 100
+	#define LY 4
 #endif
 #define PC 2
-#define LY1 50
-#define LY2 50
-#define YE 2
+#define LY1 2
+#define LY2 2
+#define YE 1
 #define IFHOP 1
 #define inf INT_MAX/2
 using namespace std;
@@ -77,13 +77,14 @@ class PBellmanor:public algbase{
         virtual bool cutcake(int index){
         }
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
+        	cout<<"??????????"<<endl;
         	maxbw=500;
         	rela=relate;
         	stes=stpair;
         	edges=extenedges.first;
+        	cout<<edges[0].s<<" "<<edges[0].t<<endl;
         	vector<vector<int>>esigns=extenedges.second;
         	edgesize=edges.size(),nodenum=ginf.enodesize,pesize=ginf.pesize,pnodesize=ginf.pnodesize;
-        	nodenum=pnodesize;
         	exn2n=ginf.exn2n;
         	vector<vector<int>>nd(nodenum*LY,vector<int>());
         	neibour=nd;
@@ -99,10 +100,11 @@ class PBellmanor:public algbase{
     		pre=pp;
 			pesize=edges.size();
 			W=WD+1;
+			cout<<"%%%%%%%%%%%"<<endl;
 			for(int k=0;k<LY;k++)
 			{
-				vector<vector<int>>tmpn(pnodesize,vector<int>());
-				vector<vector<int>>tmpe(pnodesize,vector<int>());
+				vector<vector<int>>tmpn(nodenum,vector<int>());
+				vector<vector<int>>tmpe(nodenum,vector<int>());
 				for(int i=0;i<edges.size();i++)
 					{
 						int s=edges[i].s;
@@ -110,7 +112,6 @@ class PBellmanor:public algbase{
 						tmpn[s].push_back(t);
 						tmpe[s].push_back(esigns[k][i]);
 					}
-				
 				neie.push_back(tmpe);
 				nein.push_back(tmpn);
 			}
@@ -123,7 +124,7 @@ class PBellmanor:public algbase{
         		time_t start,end;
         		start=clock();
         		vector<vector<int>>result(LY,vector<int>());
-        		for(int y=1;y<PC;y++)
+        		for(int y=1;y<PC+1;y++)
 					for(int k=L[y-1];k<L[y];k++)
 					{
 						int tnode=-1;
@@ -132,8 +133,9 @@ class PBellmanor:public algbase{
 						vector<int>flag(nodenum,0);
 						for(int l=0;l<stpairs[y-1].size();l++)
 						{	
-							int s=stpairs[y-1][l].first;
+							int s=stpairs[y-1][l].first*(WD+1);
 							int t=stpairs[y-1][l].second;
+							cout<<"t is "<<t<<endl;
 							for (int i = 0;i<nodenum;i++)
 								if (i == s)
 									d[i]=0;
@@ -151,9 +153,9 @@ class PBellmanor:public algbase{
 							do{
 								int cur = heap.pop();
 								flag[cur] = 1;
-								if (cur == t)
+								if (cur/(WD+1) == t)
 									{	
-										tnode=t;
+										tnode=cur;
 										break;
 									}
 								int size = nein[k][cur].size();
@@ -163,10 +165,12 @@ class PBellmanor:public algbase{
 											d[to] = d[cur]+neie[k][cur][i];
 											heap.update(to, d[to]);
 											peg[to]=cur;
-									}
+										}
 								}
 							} while (!heap.empty());
-							if(tnode>=0)
+							cout<<" "<<tnode<<" "<<"d:"<<d[tnode]<<endl;
+							//cout<<"tnode is :"<<tnode<<" "<<tnode/W<<" "<<t<<endl;
+							/*if(tnode!=s*(WD+1))
 							{
 								int prn=tnode;
 								while(prn!=s)
@@ -175,7 +179,7 @@ class PBellmanor:public algbase{
 									prn=peg[prn];
 								}
 								//cout<<prn<<" ";
-							}
+							}*/
 							//cout<<endl;
 						}
 					}
@@ -242,6 +246,7 @@ class Bellmanor:public algbase
 		vector<int>size;
 		vector<int>nodeoff;
 		vector<int>leveloff;
+		vector<vector<pair<int,int>>>stps;
 		
 	public:
 		 Bellmanor();
@@ -305,8 +310,8 @@ class PBFSor:public algbase{
 			W=WD+1;
 			for(int k=0;k<LY;k++)
 			{
-				vector<vector<int>>tmpn(pnodesize,vector<int>());
-				vector<vector<int>>tmpe(pnodesize,vector<int>());
+				vector<vector<int>>tmpn(nodenum,vector<int>());
+				vector<vector<int>>tmpe(nodenum,vector<int>());
 				for(int i=0;i<edges.size();i++)
 					{
 						int s=edges[i].s;
@@ -332,8 +337,8 @@ class PBFSor:public algbase{
 				{
 					int tnode=-1;
 					int tv=WD+1;
-					vector<int>dist(pnodesize,INT_MAX);
-					vector<int>pre(pnodesize,-1);
+					vector<int>dist(nodenum,INT_MAX);
+					vector<int>pre(nodenum,-1);
 					int vflag=1;
 					priority_queue<pair<int, int>,vector<pair<int,int>>,std::less<std::pair<int, int>>>que;
 					int s=stes[l].first;
