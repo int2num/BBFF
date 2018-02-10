@@ -11,16 +11,17 @@
 #include <algorithm>
 #define ML 50
 #define BS 5
-#define WD 3
+#define WD 10
 #ifndef LY 
 	#define LY 4
 #endif
 #define PC 2
 #define LY1 2
 #define LY2 2
-#define YE 1
-#define IFHOP 1
+#define YE 2
+#define IFHOP 0
 #define inf INT_MAX/2
+#define INF 100000
 using namespace std;
 class algbase {
     protected:
@@ -77,30 +78,11 @@ class PBellmanor:public algbase{
         virtual bool cutcake(int index){
         }
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
-        	cout<<"??????????"<<endl;
-        	maxbw=500;
-        	rela=relate;
         	stes=stpair;
         	edges=extenedges.first;
-        	cout<<edges[0].s<<" "<<edges[0].t<<endl;
         	vector<vector<int>>esigns=extenedges.second;
-        	edgesize=edges.size(),nodenum=ginf.enodesize,pesize=ginf.pesize,pnodesize=ginf.pnodesize;
-        	exn2n=ginf.exn2n;
-        	vector<vector<int>>nd(nodenum*LY,vector<int>());
-        	neibour=nd;
-        	vector<int>ad(nodenum*LY,0);
-        	ancestor=ad;	
-    		vector<int>bl(BS,0);
-    		leveln=bl;
-    		vector<vector<vector<int>>>nm(BS,vector<vector<int>>());
-    		mask=nm;
-    		vector<int>dd(nodenum*LY,inf);
-    		dist=dd;
-    		vector<int>pp(nodenum*LY,-1);
-    		pre=pp;
-			pesize=edges.size();
+        	edgesize=edges.size(),nodenum=ginf.enodesize;
 			W=WD+1;
-			cout<<"%%%%%%%%%%%"<<endl;
 			for(int k=0;k<LY;k++)
 			{
 				vector<vector<int>>tmpn(nodenum,vector<int>());
@@ -118,9 +100,7 @@ class PBellmanor:public algbase{
 			cout<<"good so far "<<endl;
         }
         virtual vector<vector<int>> routalg(int s,int t,int bw){
-        		cout<<"in rout alg"<<endl;
-				cout<<"nodenum: "<<nodenum<<endl;
-				cout<<"edge size :"<<edges.size()<<endl;
+        		cout<<"in bellman rout alg"<<endl;
         		time_t start,end;
         		start=clock();
         		vector<vector<int>>result(LY,vector<int>());
@@ -135,7 +115,6 @@ class PBellmanor:public algbase{
 						{	
 							int s=stpairs[y-1][l].first*(WD+1);
 							int t=stpairs[y-1][l].second;
-							cout<<"t is "<<t<<endl;
 							for (int i = 0;i<nodenum;i++)
 								if (i == s)
 									d[i]=0;
@@ -168,19 +147,6 @@ class PBellmanor:public algbase{
 										}
 								}
 							} while (!heap.empty());
-							//cout<<" "<<tnode<<" "<<"d:"<<d[tnode]<<endl;
-							//cout<<"tnode is :"<<tnode<<" "<<tnode/W<<" "<<t<<endl;
-							/*if(tnode!=s*(WD+1))
-							{
-								int prn=tnode;
-								while(prn!=s)
-								{
-									//cout<<prn<<" ";
-									prn=peg[prn];
-								}
-								//cout<<prn<<" ";
-							}*/
-							//cout<<endl;
 						}
 					}
         		end=clock();
@@ -243,7 +209,7 @@ class Bellmanor:public algbase
 		vector<int>S;
 		vector<int>NF;
 		int ncount;
-		vector<int>size;
+		vector<int>Size;
 		vector<int>nodeoff;
 		vector<int>leveloff;
 		vector<vector<pair<int,int>>>stps;
@@ -259,6 +225,60 @@ class Bellmanor:public algbase
 	 	 virtual void updatS(vector<vector<pair<int,int>>>&stpair);	 	 
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
 };
+class BFSor:public algbase
+{
+	private:
+		edge *dev_edges,*aedges;
+		int*dev_m,*m,*dev_pre,*pre,*pred,*dev_pred,*dev_d,*d,*dev_mask,*mask,*dev_leveln,*leveln;
+		int*dev_rela,*rela;
+		int presize,dsize,masksize,levelnsize;
+		int edgesize,nodenum,pesize,pnodesize;
+		int neisize,duansize;
+		int *choosel,*dev_choosel;
+		int *rout,*dev_rout;
+		int *routn,*dev_routn,*order,*dev_order;
+		vector<int>hleveln,ancestor;
+		int maxbw;
+		int *dev_qian,*qian,*dev_qbeg,*qbeg,*dev_qsize,*qsize;
+		epair *dev_nei,*nei;
+		int *dev_duan,*duan;
+		int *dev_beg,*beg;
+		int *dev_value,*value;
+		int *dev_height,*height;
+		vector<vector<int>>neibour;
+		vector<edge>edges;
+		vector<int>ordernode;
+		void allocate(int maxn,int maxedges);
+		void copydata(int s,vector<edge>&edges,int nodenum);
+		void dellocate();
+		int W;
+		int *st,*te,*dev_st,*dev_te;
+		int *chan,*dev_chan;
+		int*esignes;
+		vector<vector<int>>neibn;
+		int *mark,*dev_mark;
+		vector<pair<int,int>>stp;
+		//add parameters
+		vector<int>L;
+		vector<int>S;
+		vector<int>NF;
+		int ncount;
+		vector<int>Size;
+		vector<int>nodeoff;
+		vector<int>leveloff;
+		vector<vector<pair<int,int>>>stps;
+	public:
+		 BFSor();
+	 	 void topsort();
+	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
+	 	 virtual bool cutcake(int index){};
+	 	 virtual vector<vector<int>> routalg(int s,int t,int bw);
+	 	 virtual void updatE(vector<int>esigns);
+	 	 virtual void updatS(vector<vector<pair<int,int>>>&stpair);	 	 
+	 	 virtual ~BFSor(){dellocate();}
+	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
+};
+
 class PBFSor:public algbase{
     public:
 		vector<vector<int>>neibour;
@@ -327,10 +347,11 @@ class PBFSor:public algbase{
 			}
         }
         virtual vector<vector<int>> routalg(int s,int t,int bw){
-        	cout<<"in rout alg"<<endl;
+        	cout<<"in BFS rout alg"<<endl;
 			time_t start,end;
 			start=clock();
 			vector<vector<int>>result(LY,vector<int>());
+			cout<<"stes size: "<<stes.size()<<endl;
 			for(int k=0;k<LY;k++)
 			{
 				for(int l=0;l<stes.size();l++)
@@ -343,6 +364,7 @@ class PBFSor:public algbase{
 					priority_queue<pair<int, int>,vector<pair<int,int>>,std::less<std::pair<int, int>>>que;
 					int s=stes[l].first;
 					int t=stes[l].second;
+					cout<<s<<" "<<t<<" ";
 					que.push(make_pair(s,0));
 					dist[s]=0;
 					while(!que.empty()&&vflag)
@@ -367,6 +389,7 @@ class PBFSor:public algbase{
 							}
 						}
 					}
+					cout<<dist[tnode]<<endl;
 					int prn=tnode;
 					int len=0;
 					//cout<<"tnode is: "<<tnode<<endl;
@@ -399,46 +422,5 @@ class PBFSor:public algbase{
         {
         };
 };
-class BFSor:public algbase
-{
-	private:
-		edge *dev_edges,*aedges;
-		int*dev_m,*m,*dev_pre,*pre,*pred,*dev_pred,*dev_d,*d,*dev_mask,*mask,*dev_leveln,*leveln;
-		int*dev_rela,*rela;
-		int presize,dsize,masksize,levelnsize;
-		int edgesize,nodenum,pesize,pnodesize;
-		int neisize,duansize;
-		int *choosel,*dev_choosel;
-		int *rout,*dev_rout;
-		int *routn,*dev_routn,*order,*dev_order;
-		vector<int>hleveln,ancestor;
-		int maxbw;
-		int *dev_qian,*qian,*dev_qbeg,*qbeg,*dev_qsize,*qsize;
-		epair *dev_nei,*nei;
-		int *dev_duan,*duan;
-		int *dev_beg,*beg;
-		int *dev_value,*value;
-		int *dev_height,*height;
-		vector<vector<int>>neibour;
-		vector<edge>edges;
-		vector<int>ordernode;
-		void allocate(int maxn,int maxedges);
-		void copydata(int s,vector<edge>&edges,int nodenum);
-		void dellocate();
-		int W;
-		int *st,*te,*dev_st,*dev_te;
-		int *chan,*dev_chan;
-		int*esignes;
-		vector<vector<int>>neibn;
-		int *mark,*dev_mark;
-		vector<pair<int,int>>stp;
-	public:
-		 BFSor();
-	 	 void topsort();
-	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
-	 	 virtual bool cutcake(int index){};
-	 	 virtual vector<vector<int>> routalg(int s,int t,int bw);
-	 	 virtual ~BFSor(){dellocate();}
-	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
-};
+
 #endif //CSPALLOC_PATHALG_H

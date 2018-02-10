@@ -12,6 +12,37 @@ void BFSor::allocate(int maxn,int maxedge){
 void BFSor::topsort()
 {
 };
+void BFSor::updatE(vector<int>esigns)
+{
+}
+void BFSor::updatS(vector<vector<pair<int,int>>>&stpair)
+{
+	L[0]=0;
+	L[1]=LY1;
+	L[2]=LY2;
+	S[0]=stpair[0].size();
+	S[1]=stpair[1].size();
+	stps=stpair;
+	int count=0;
+	ncount=L[1]*S[0]+L[2]*S[1];
+	for(int i=0;i<nodenum*ncount;i++)
+		d[i]=INF;
+	int nut=(IFHOP>0)?(WD+1):1;
+	for(int h=0;h<stpair.size();h++)
+		{
+		for(int k=0;k<L[h+1];k++)
+			{
+			for(int j=0;j<stpair[h].size();j++)
+				{
+				 d[count*nodenum+stpair[h][j].first*nut]=0;
+				 count++;
+				}
+			}
+		}
+	Size[0]=edges.size()*L[1]*S[0];
+	Size[1]=edges.size()*L[2]*S[1];
+	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+}
 void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
 {
 	nodenum=ginf.pnodesize;
@@ -22,8 +53,8 @@ void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>
 	mark=new int;
 	*mark=0;
 	W=WD+1;
-	st=new int[2*edges.size()*LY];
-	te=new int[2*edges.size()*LY];
+	st=new int[edges.size()*LY];
+	te=new int[edges.size()*LY];
 	d=new int[nodenum*LY*YE];
 	esignes=new int[edges.size()*LY];
 	vector<vector<int>>nein(nodenum*LY,vector<int>());
@@ -34,9 +65,7 @@ void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>
 			int s=edges[i].s;
 			int t=edges[i].t;
 			neibn[s].push_back(t);
-			neibn[t].push_back(s);
 			neie[s].push_back(i);
-			neie[t].push_back(i);
 		}
 	int count=0;
 	for(int k=0;k<LY;k++)
@@ -44,7 +73,7 @@ void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>
 			for(int j=0;j<neibn[i].size();j++)
 			{
 				st[count]=i;
-				if(esigns[k][neie[i][j]]==-1)
+				if(esigns[k][neie[i][j]]<0)
 					te[count]=i;
 				else
 					te[count]=neibn[i][j];
@@ -52,38 +81,25 @@ void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>
 			}
 	for(int i=0;i<nodenum*LY*YE;i++)
 		d[i]=WD+1;
-	for(int k=0;k<LY;k++)
-	{
-		int boff=k*YE*nodenum;
-		for(int i=0;i<YE;i++)
-		{
-			int soff=i*nodenum;
-			for(int j=0;j<stpair.size();j++)
-				d[boff+soff+stpair[i].first]=0;
-		}
-	}
-	cudaMalloc((void**)&dev_st,2*LY*edges.size()*sizeof(int));
-	cudaMalloc((void**)&dev_te,2*LY*edges.size()*sizeof(int));
+	cudaMalloc((void**)&dev_st,LY*edges.size()*sizeof(int));
+	cudaMalloc((void**)&dev_te,LY*edges.size()*sizeof(int));
 	cudaMalloc((void**)&dev_d,YE*LY*nodenum*sizeof(int));
-	if(dev_d==NULL) {
-		printf("couldn't allocate %d int's.\n");
-	}
-	cudaMemcpy(dev_te,te,2*LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_st,st,2*LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
-	cudaMemcpy(dev_d,d,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
-	cout<<nodenum<<endl;
+	cudaMemcpy(dev_te,te,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_st,st,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
+	//cudaMemcpy(dev_d,d,YE*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 };
-BFSor::BFSor()
+BFSor::BFSor():L(PC+1,0),S(PC,0),NF(PC,0),Size(2,0)
 {
-	
 };
-__global__ void BFSfast(int *st,int *te,int *d,int round,int E,int N,int size)
+__global__ void BFSfast(int *st,int *te,int *d,int E,int N,int size,int round,int Leveloff,int numoff,int ye,int ly)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
-	if(i>size)return;
-	int eid=(i%(E*LY));
-	int s=st[eid],t=te[eid];
-	int off=(i/(E*LY))*N+(eid/E)*N*YE;
+	if(i>size)return;	
+	int eid=(i%(E*ly));
+	int eeid=eid+Leveloff;
+	int s=st[eeid],t=te[eeid];
+	if(s==t)return;
+	int off=(i/(E*ly))*N+(eid/E)*N*ye+numoff;
 	if(d[s+off]==round-1&&d[t+off]>round)
 		d[t+off]=round;
 }
@@ -93,26 +109,47 @@ vector<vector<int>> BFSor::routalg(int s,int t,int bw)
 	int kk=1;
 	time_t start,end;
 	start=clock();
-	int size=2*edges.size()*LY*YE;
+	int size=edges.size()*LY*YE;
+	for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<nodenum;j++)
+				cout<<d[i*nodenum+j]<<" ";
+			cout<<endl;
+		}
+	cout<<"size"<<Size[0]<<endl;
+	int leoff=edges.size()*L[1];
+	int nuoff=L[1]*S[0]*nodenum;
 	for(int i=1;i<=WD;i++)
-		BFSfast<<<size/512+1,512>>>(dev_st,dev_te,dev_d,i,2*edges.size(),nodenum,size);
+		{
+			BFSfast<<<Size[0]/512+1,512>>>(dev_st,dev_te,dev_d,edges.size(),nodenum,Size[0],i,0,0,S[0],L[1]);
+			BFSfast<<<Size[1]/512+1,512>>>(dev_st,dev_te,dev_d,edges.size(),nodenum,Size[1],i,leoff,nuoff,S[1],L[2]);
+		}
+	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	for(int i=0;i<8;i++)
+		{
+			for(int j=0;j<nodenum;j++)
+				cout<<d[i*nodenum+j]<<" ";
+			cout<<endl;
+		}
 	cudaMemcpy(d,dev_d,nodenum*LY*YE*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(0);
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;
 	vector<vector<int>>result(LY,vector<int>());
-	for(int k=0;k<LY;k++)
-	{
-		int woff=k*YE*nodenum;
-		for(int i=0;i<YE;i++)
-		{
-			result[k].push_back(d[woff+i*nodenum+stp[i].second]);
-		}
-	}
 	cudaFree(dev_te);
 	cudaFree(dev_st);
 	cudaFree(dev_d);
 	cout<<"before return"<<endl;
 	return result;
 };
+/*__global__ void BFSfast(int *st,int *te,int *d,int round,int E,int N,int size)
+{
+	int i = threadIdx.x + blockIdx.x*blockDim.x;
+	if(i>size)return;
+	int eid=(i%(E*LY));
+	int s=st[eid],t=te[eid];
+	int off=(i/(E*LY))*N+(eid/E)*N*YE;
+	if(d[s+off]==round-1&&d[t+off]>round)
+		d[t+off]=round;
+}*/

@@ -42,8 +42,8 @@ class Graph
         	vector<vector<pair<int,int>>>stpair(2,vector<pair<int,int>>());
         	int nut=(IFHOP>0)?(WD+1):1;
         	for(int i=0;i<stpair.size();i++)
-				for(int j=0;j<1;j++)
-					stpair[i].push_back(make_pair(j+1,0));
+				for(int j=0;j<2;j++)
+					stpair[i].push_back(make_pair(j+1,8));
         	router1.updatS(stpair);
 			vector<vector<int>>b=router1.routalg(0,0,0);
         	router2.updatS(stpair);
@@ -154,22 +154,9 @@ class Graph
             cout<<"dsaaaaaaaaaaaad asd"<<endl;
             //asdasdasdasd.
             vector<pair<int,int>> stpair;
+            stpair.push_back(make_pair(1,5));
+            stpair.push_back(make_pair(3,4));
             int count=0;
-           /* for(int i=0;i<YE;i++)
-            {
-            	int t=i;
-            	while(t==i)t=rand()%(n/W);
-            	stpair.push_back(make_pair(i,t));
-            }
-            /*vector<pair<int,int>> exstpair;
-            for(int i=0;i<YE;i++)
-            	{
-            		int s=stpair[i].first;
-            		int t=stpair[i].second;
-            		exstpair.push_back(make_pair(s*W,t*W));
-            	}
-            pair<vector<edge>,vector<vector<int>>>exte,exce;*/
-          
             if(IFHOP>0)
             	{
             	router1.init(make_pair(nedges,nesigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n,maxnode+1,etn2n));
