@@ -16,7 +16,7 @@ void Bellmanor::topsort()
 void Bellmanor::updatE(vector<int>esigns)
 {
 }
-void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
+void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 {
 	L[0]=0;
 	L[1]=LY1;
@@ -35,7 +35,7 @@ void Bellmanor::updatS(vector<vector<pair<int,int>>>&stpair)
 			{
 			for(int j=0;j<stpair[h].size();j++)
 				{
-				 d[count*nodenum+stpair[h][j].first*nut]=0;
+				 d[count*nodenum+stpair[h][j].s*nut]=0;
 				 count++;
 				}
 			}
@@ -160,7 +160,7 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 	if(d[i]>dm)
 		d[i]=dm,p[i]=mark;
 }
-vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
+vector<vector<vector<int>>> Bellmanor::routalg(int s,int t,int bw)
 {
 	cout<<"inbellman"<<endl;
 	int kk=1;
@@ -170,12 +170,12 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamCreate(&stream0);
 	cudaStream_t stream1;
 	cudaStreamCreate(&stream1);
-	for(int i=0;i<8;i++)
+	/*for(int i=0;i<8;i++)
 		{
 			for(int j=0;j<nodenum;j++)
 				cout<<d[i*nodenum+j]<<" ";
 			cout<<endl;
-		}
+		}*/
 	for(int i=0;i<WD+1;i++)
 	{
 		bellmandu<<<Size[0]/512+1,512,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
@@ -184,15 +184,15 @@ vector<vector<int>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	for(int i=0;i<8;i++)
+	/*for(int i=0;i<8;i++)
 		{
 			for(int j=0;j<nodenum;j++)
 				cout<<d[i*nodenum+j]<<" ";
 			cout<<endl;
-		}
+		}*/
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
-	vector<vector<int>>result(LY,vector<int>());
+	vector<vector<vector<int>>>result(2,vector<vector<int>>());
 	cudaFree(dev_te);
 	cudaFree(dev_st);
 	cudaFree(dev_d);

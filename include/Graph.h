@@ -37,13 +37,23 @@ class Graph
         }
         pair<int,int>routalg(int s,int t,int bw)
 		{
-        	vector<vector<pair<int,int>>>stpair(2,vector<pair<int,int>>());
+        	vector<vector<Sot>>stpair(PC,vector<Sot>());
+        	set<int>ss;
+        	ss.insert(5);
+        	ss.insert(10);
         	int nut=(IFHOP>0)?(WD+1):1;
         	for(int i=0;i<stpair.size();i++)
 				for(int j=0;j<2;j++)
-					stpair[i].push_back(make_pair(j+1,8));
-        	router1.updatS(stpair);
-			vector<vector<int>>b=router1.routalg(0,0,0);
+				{
+					Sot s(j);
+					s.push(j+1,j);
+					s.push(j+2,j);
+					stpair[i].push_back(s);
+				}
+			router1.updatS(stpair);
+			router1.routalg(0,0,0);
+			router2.updatS(stpair);
+			router2.routalg(0,0,0);
 			int flag=0;
 			return make_pair(0,0);
 		}

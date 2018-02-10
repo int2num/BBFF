@@ -24,6 +24,26 @@
 #define inf INT_MAX/2
 #define INF 100000
 using namespace std;
+struct Rute{
+	int s,t;
+	int hops;
+	int ly;
+	vector<int>routes;
+	Rute(int s,int t,int hops,int ly,vector<int>&routes){};
+};
+struct Sot{
+	int s;
+	set<int>ts;
+	map<int,int>mmp;
+	int size;
+	Sot(int s=0){size=0;};
+	bool push(int t,int i){
+		if(t==s)return false;
+		ts.insert(t);
+		mmp[t]=i;
+		size++;
+	}
+};
 class algbase {
     protected:
         vector<int> getrout(int &s, int &t, vector<edge> &edges, vector<int> &pre) {
@@ -40,9 +60,9 @@ class algbase {
         algbase(){};
         virtual bool cutcake(int)=0;
         virtual void updatE(vector<int>esigns){};
-	 	virtual void updatS(vector<vector<pair<int,int>>>&stpair){};	 	 
+	 	virtual void updatS(vector<vector<Sot>>&stpair){};	 	 
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo)=0;
-	 	virtual vector<vector<int>> routalg(int s,int t,int bw)=0;
+	 	virtual vector<vector<vector<int>>> routalg(int s,int t,int bw)=0;
 	 	virtual pair<int,int> prepush(int s,int t,int bw)=0;
 };
 class PBellmanor:public algbase{
@@ -64,10 +84,10 @@ class PBellmanor:public algbase{
 		vector<int>esign;
 		vector<pair<int,int>>stes;
 		int W;
-		vector<vector<pair<int,int>>>stpairs;
+		vector<vector<Sot>>stpairs;
 		vector<int>L;
 		PBellmanor():L(3,0){};
-        virtual void updatS(vector<vector<pair<int,int>>>&stpair){
+        virtual void updatS(vector<vector<Sot>>&stpair){
         	stpairs=stpair;
         	L[0]=0;
         	L[1]=LY1;
@@ -100,11 +120,11 @@ class PBellmanor:public algbase{
 			}
 			cout<<"good so far "<<endl;
         }
-        virtual vector<vector<int>> routalg(int s,int t,int bw){
+        virtual vector<vector<vector<int>>> routalg(int s,int t,int bw){
         		cout<<"in bellman rout alg"<<endl;
         		time_t start,end;
         		start=clock();
-        		vector<vector<int>>result(LY,vector<int>());
+        		vector<vector<vector<int>>>result(2,vector<vector<int>>());
         		for(int y=1;y<PC+1;y++)
 					for(int k=L[y-1];k<L[y];k++)
 					{
@@ -113,15 +133,16 @@ class PBellmanor:public algbase{
 						vector<int>peg(nodenum,-1);
 						for(int l=0;l<stpairs[y-1].size();l++)
 						{	
-							int s=stpairs[y-1][l].first*(WD+1);
-							int t=stpairs[y-1][l].second;
-							dijkstra(s,t,d,peg,neie[k],nein[k],nodenum,WD);
+							int s=stpairs[y-1][l].s*(WD+1);
+							set<int>ts=stpairs[y-1][l].ts;
+							int size=stpairs[y-1][l].size;
+							dijkstra(s,t,d,peg,neie[k],nein[k],nodenum,WD,ts,size);
 						}
 					}
         		end=clock();
         		cout<<"cpu time is: "<<end-start<<endl;
         		cout<<"good sofor"<<endl;
-        		return vector<vector<int>>();
+        		return result;
 	 	}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
         {
@@ -181,17 +202,17 @@ class Bellmanor:public algbase
 		vector<int>Size;
 		vector<int>nodeoff;
 		vector<int>leveloff;
-		vector<vector<pair<int,int>>>stps;
+		vector<vector<Sot>>stps;
 		
 	public:
 		 Bellmanor();
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
-	 	 virtual vector<vector<int>> routalg(int s,int t,int bw);
+	 	 virtual vector<vector<vector<int>>> routalg(int s,int t,int bw);
 	 	 virtual ~Bellmanor(){}
 	 	 virtual void updatE(vector<int>esigns);
-	 	 virtual void updatS(vector<vector<pair<int,int>>>&stpair);	 	 
+	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
 };
 class BFSor:public algbase
@@ -235,15 +256,15 @@ class BFSor:public algbase
 		vector<int>Size;
 		vector<int>nodeoff;
 		vector<int>leveloff;
-		vector<vector<pair<int,int>>>stps;
+		vector<vector<Sot>>stps;
 	public:
 		 BFSor();
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
-	 	 virtual vector<vector<int>> routalg(int s,int t,int bw);
+	 	 virtual vector<vector<vector<int>>> routalg(int s,int t,int bw);
 	 	 virtual void updatE(vector<int>esigns);
-	 	 virtual void updatS(vector<vector<pair<int,int>>>&stpair);	 	 
+	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual ~BFSor(){dellocate();}
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
 };
@@ -265,7 +286,7 @@ class PBFSor:public algbase{
 		vector<vector<vector<int>>>nein;
 		vector<int>esign;
 		vector<pair<int,int>>stes;
-		vector<vector<pair<int,int>>>stpairs;
+		vector<vector<Sot>>stpairs;
 		vector<int>L;
 		int W;
 		PBFSor():L(3,0){};
@@ -319,17 +340,17 @@ class PBFSor:public algbase{
 				nein.push_back(tmpn);
 			}
         }
-        virtual void updatS(vector<vector<pair<int,int>>>&stpair){
+        virtual void updatS(vector<vector<Sot>>&stpair){
                	stpairs=stpair;
                	L[0]=0;
                	L[1]=LY1;
                	L[2]=LY;
                }
-        virtual vector<vector<int>> routalg(int s,int t,int bw){
+        virtual vector<vector<vector<int>>> routalg(int s,int t,int bw){
         	cout<<"in BFS rout alg"<<endl;
 			time_t start,end;
 			start=clock();
-			vector<vector<int>>result(LY,vector<int>());
+			vector<vector<vector<int>>>result(2,vector<vector<int>>());
 			cout<<"stes size: "<<stes.size()<<endl;
 			for(int y=1;y<PC+1;y++)
 			for(int k=L[y-1];k<L[y];k++)
@@ -340,15 +361,16 @@ class PBFSor:public algbase{
 					int tv=WD+1;
 					vector<int>dist(nodenum,INT_MAX);
 					vector<int>pre(nodenum,-1);
-					int s=stpairs[y-1][l].first;
-					int t=stpairs[y-1][l].second;
-					BFS(s,t,dist,pre,neie[k],nein[k]);
+					int s=stpairs[y-1][l].s;
+					set<int> ts=stpairs[y-1][l].ts;
+					int size=stpairs[y-1][l].size;
+					BFS(s,t,dist,pre,neie[k],nein[k],ts,size);
 				}
 			}
 			end=clock();
 			cout<<"cpu time is: "<<end-start<<endl;
 			cout<<"good sofor"<<endl;
-			return vector<vector<int>>();
+			return vector<vector<vector<int>>>();
 	 	}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
         {

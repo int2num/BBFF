@@ -1,5 +1,5 @@
 #include"BFS.h"
-int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein)
+int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,set<int>sets,int size)
 {
 	int vflag=1;
 	int tnode=-1;
@@ -25,7 +25,7 @@ int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,ve
 				}
 				else
 					continue;
-				if(to==t){tnode=to;tv=v+1;vflag=0;break;}
+				if(sets.find(to)!=sets.end()){size--;if(size==0)break;}
 			}
 		}
 	}

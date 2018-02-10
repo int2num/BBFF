@@ -1,7 +1,7 @@
 #include"BFS.h"
 #include"Heap.h"
 #include"limits.h"
-int dijkstra(int s,int t,vector<int>&d,vector<int>&peg,vector<vector<int>>&neie,vector<vector<int>>&nein,int nodenum,int WD){
+int dijkstra(int s,int t,vector<int>&d,vector<int>&peg,vector<vector<int>>&neie,vector<vector<int>>&nein,int nodenum,int WD,set<int>sets,int size){
 	int tnode=-1;
 	vector<int>flag(nodenum,0);
 	for (int i = 0;i<nodenum;i++)
@@ -21,10 +21,16 @@ int dijkstra(int s,int t,vector<int>&d,vector<int>&peg,vector<vector<int>>&neie,
 	do{
 		int cur = heap.pop();
 		flag[cur] = 1;
-		if (cur/(WD+1) == t)
+		int accual=cur/(WD+1);
+		if (sets.find(accual)!=sets.end())
 			{	
-				tnode=cur;
-				break;
+				size--;
+				set<int>::iterator iter=sets.begin();
+				for(iter;iter!=sets.end();iter++)
+					if(*iter==accual)
+						sets.erase(iter);
+				if(size==0)
+					break;
 			}
 		int size = nein[cur].size();
 		for (int i = 0;i<size; i++){

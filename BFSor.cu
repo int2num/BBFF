@@ -14,8 +14,8 @@ void BFSor::topsort()
 };
 void BFSor::updatE(vector<int>esigns)
 {
-}
-void BFSor::updatS(vector<vector<pair<int,int>>>&stpair)
+};
+void BFSor::updatS(vector<vector<Sot>>&stpair)
 {
 	L[0]=0;
 	L[1]=LY1;
@@ -34,7 +34,7 @@ void BFSor::updatS(vector<vector<pair<int,int>>>&stpair)
 			{
 			for(int j=0;j<stpair[h].size();j++)
 				{
-				 d[count*nodenum+stpair[h][j].first*nut]=0;
+				 d[count*nodenum+stpair[h][j].s*nut]=0;
 				 count++;
 				}
 			}
@@ -104,19 +104,19 @@ __global__ void BFSfast(int *st,int *te,int *d,int E,int N,int size,int round,in
 	if(d[s+off]==round-1&&d[t+off]>round)
 		d[t+off]=round;
 }
-vector<vector<int>> BFSor::routalg(int s,int t,int bw)
+vector<vector<vector<int>>> BFSor::routalg(int s,int t,int bw)
 {
 	cout<<"blasting "<<endl;
 	int kk=1;
 	time_t start,end;
 	start=clock();
 	int size=edges.size()*LY*YE;
-	for(int i=0;i<8;i++)
+	/*for(int i=0;i<8;i++)
 		{
 			for(int j=0;j<nodenum;j++)
 				cout<<d[i*nodenum+j]<<" ";
 			cout<<endl;
-		}
+		}*/
 	cout<<"size"<<Size[0]<<endl;
 	int leoff=edges.size()*L[1];
 	int nuoff=L[1]*S[0]*nodenum;
@@ -126,18 +126,36 @@ vector<vector<int>> BFSor::routalg(int s,int t,int bw)
 			BFSfast<<<Size[1]/512+1,512>>>(dev_st,dev_te,dev_d,edges.size(),nodenum,Size[1],i,leoff,nuoff,S[1],L[2]);
 		}
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	for(int i=0;i<8;i++)
+	vector<vector<vector<int>>>result(2,vector<vector<int>>());
+	vector<vector<int>>darray1,darray2;
+	/*for(int j=0;j<L[0];j++)
+	{
+		vector<int>res;
+		for(int k=0;k<stps[0].size();k++)
+			res.push_back(d[j*stps[0].size()*nodenum+k*nodenum]);
+		darray1.push_back(res);
+	}
+	
+	for(int j=0;j<L[1];j++)
+	{
+		vector<int>res;
+		for(int k=0;k<stps[1].size();k++)
+			res.push_back(d[L[0]*stps[0].size()*nodenum+j*stps[1].size()*nodenum+k*nodenum]);
+		darray2.push_back(res);
+	}
+	result.push_back(darray1);
+	result.push_back(darray2);*/
+	/*for(int i=0;i<8;i++)
 		{
 			for(int j=0;j<nodenum;j++)
 				cout<<d[i*nodenum+j]<<" ";
 			cout<<endl;
-		}
+		}*/
 	cudaMemcpy(d,dev_d,nodenum*LY*YE*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(0);
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;
-	vector<vector<int>>result(LY,vector<int>());
 	cudaFree(dev_te);
 	cudaFree(dev_st);
 	cudaFree(dev_d);
