@@ -1,5 +1,5 @@
 #include"BFS.h"
-int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size)
+int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size,int WD)
 {
 	int vflag=1;
 	int tnode=-1;
@@ -12,6 +12,7 @@ int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,ve
 		int node=que.top().first;
 		int v=que.top().second;
 		que.pop();
+		if(v>WD)break;
 		for(int i=0;i<nein[node].size();i++)
 		{
 			if(neie[node][i]>0&&esigns[neieid[node][i]]>0)

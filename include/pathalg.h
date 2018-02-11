@@ -21,7 +21,7 @@
 #define LY1 2
 #define LY2 2
 #define YE 2
-#define IFHOP 1
+#define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -419,15 +419,16 @@ class PBFSor:public algbase{
 					set<int> ts=stpairs[y-1][l].ts;
 					vector<int>ters=stpairs[y-1][l].ters;
 					int size=stpairs[y-1][l].size;
-					BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size);
+					BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
 					for(int i=0;i<ters.size();i++)
 						{
 							vector<int>rout;
 							int hop=0;
 							int prn=ters[i];
 							int d=dist[ters[i]];
-							if(pre[prn]<0)continue;
+							if(pre[prn]<0&&pre[prn]>WD)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
+							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
 							if(prn>=0)
 							{
 								while(prn!=s)

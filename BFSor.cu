@@ -137,7 +137,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	cudaStreamCreate(&stream1);
 	int leoff=edges.size()*L[1];
 	int nuoff=L[1]*S[0]*nodenum;
-	for(int i=1;i<=WD;i++)
+	for(int i=1;i<WD+1;i++)
 		{
 			BFSfast<<<Size[0]/512+1,512,0,stream0>>>(dev_st,dev_te,dev_d,dev_p,dev_stid,edges.size(),nodenum,Size[0],i,0,0,S[0],L[1]);
 			BFSfast<<<Size[1]/512+1,512,0,stream1>>>(dev_st,dev_te,dev_d,dev_p,dev_stid,edges.size(),nodenum,Size[1],i,leoff,nuoff,S[1],L[2]);
@@ -149,7 +149,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	/*for(int i=0;i<8;i++)
 	{
 		for(int j=0;j<nodenum;j++)
-			cout<<p[i*nodenum+j]<<" ";
+			cout<<d[i*nodenum+j]<<" ";
 		cout<<endl;
 	}*/
 	vector<vector<Rout>>result(2,vector<Rout>());
@@ -172,12 +172,12 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 				{
 					int id=stps[y-1][l].mmpid[ters[i]];
 					int t=ters[i];
-				
 					int ds=d[off+t];
 					if(ds>WD)continue;
 					int prn=off+t;
 					int hop=0;
 					vector<int>rout;
+					//cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" :"<<endl;
 					if(prn>=0)
 					{
 						while(prn!=s+off)
