@@ -160,7 +160,7 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 	if(d[i]>dm)
 		d[i]=dm,p[i]=mark;
 }
-vector<vector<vector<int>>> Bellmanor::routalg(int s,int t,int bw)
+vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 {
 	cout<<"inbellman"<<endl;
 	int kk=1;
@@ -192,7 +192,7 @@ vector<vector<vector<int>>> Bellmanor::routalg(int s,int t,int bw)
 		}*/
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
-	vector<vector<vector<int>>>result(2,vector<vector<int>>());
+	vector<vector<Rout>>result(2,vector<Rout>());
 	cudaFree(dev_te);
 	cudaFree(dev_st);
 	cudaFree(dev_d);

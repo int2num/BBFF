@@ -25,25 +25,29 @@
 #define inf INT_MAX/2
 #define INF 100000
 using namespace std;
-struct Rute{
+struct Rout{
 	int s,t;
 	int id;
 	int hops;
 	int ly;
 	vector<int>routes;
-	Rute(int s,int t,int hops,int ly,vector<int>&routes){};
+	Rout(int s,int t,int id,int hops,int ly,vector<int>&routes){};
 };
 struct Sot{
 	int s;
 	set<int>ts;
 	map<int,int>mmpid;
+	vector<int>ters;
 	int size;
-	Sot(int s=0){size=0;};
+	Sot(int _s=0){s=_s,size=0;};
+	Sot(){};
 	bool push(int t,int i){
 		if(t==s)return false;
 		ts.insert(t);
 		mmpid[t]=i;
 		size++;
+		ters.push_back(t);
+		return true;
 	}
 };
 class algbase {
@@ -64,7 +68,7 @@ class algbase {
         virtual void updatE(vector<int>esigns){};
 	 	virtual void updatS(vector<vector<Sot>>&stpair){};	 	 
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo)=0;
-	 	virtual vector<vector<vector<int>>> routalg(int s,int t,int bw)=0;
+	 	virtual vector<vector<Rout>> routalg(int s,int t,int bw)=0;
 	 	virtual pair<int,int> prepush(int s,int t,int bw)=0;
 };
 class PBellmanor:public algbase{
@@ -88,6 +92,11 @@ class PBellmanor:public algbase{
 		int W;
 		vector<vector<Sot>>stpairs;
 		vector<int>L;
+		
+		
+		vector<vector<vector<int>>>neieid;
+		vector<vector<int>>esigns;
+		
 		PBellmanor():L(3,0){};
         virtual void updatS(vector<vector<Sot>>&stpair){
         	stpairs=stpair;
@@ -103,30 +112,33 @@ class PBellmanor:public algbase{
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
         	stes=stpair;
         	edges=extenedges.first;
-        	vector<vector<int>>esigns=extenedges.second;
+        	esigns=extenedges.second;
         	edgesize=edges.size(),nodenum=ginf.enodesize;
 			W=WD+1;
 			for(int k=0;k<LY;k++)
 			{
 				vector<vector<int>>tmpn(nodenum,vector<int>());
 				vector<vector<int>>tmpe(nodenum,vector<int>());
+				vector<vector<int>>tmpeid(nodenum,vector<int>());
 				for(int i=0;i<edges.size();i++)
 					{
 						int s=edges[i].s;
 						int t=edges[i].t;
 						tmpn[s].push_back(t);
 						tmpe[s].push_back(esigns[k][i]);
+						tmpeid[s].push_back(i);
 					}
 				neie.push_back(tmpe);
 				nein.push_back(tmpn);
+				neieid.push_back(tmpeid);
 			}
 			cout<<"good so far "<<endl;
         }
-        virtual vector<vector<vector<int>>> routalg(int s,int t,int bw){
+        virtual vector<vector<Rout>> routalg(int s,int t,int bw){
         		cout<<"in bellman rout alg"<<endl;
         		time_t start,end;
         		start=clock();
-        		vector<vector<vector<int>>>result(2,vector<vector<int>>());
+        		vector<vector<Rout>>result(2,vector<Rout>());
         		for(int y=1;y<PC+1;y++)
 					for(int k=L[y-1];k<L[y];k++)
 					{
@@ -138,7 +150,7 @@ class PBellmanor:public algbase{
 							int s=stpairs[y-1][l].s*(WD+1);
 							set<int>ts=stpairs[y-1][l].ts;
 							int size=stpairs[y-1][l].size;
-							dijkstra(s,t,d,peg,neie[k],nein[k],nodenum,WD,ts,size);
+							dijkstra(s,t,d,peg,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
 						}
 					}
         		end=clock();
@@ -211,7 +223,7 @@ class Bellmanor:public algbase
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
-	 	 virtual vector<vector<vector<int>>> routalg(int s,int t,int bw);
+	 	 virtual vector<vector<Rout>> routalg(int s,int t,int bw);
 	 	 virtual ~Bellmanor(){}
 	 	 virtual void updatE(vector<int>esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
@@ -246,7 +258,7 @@ class BFSor:public algbase
 		int W;
 		int *st,*te,*dev_st,*dev_te;
 		int *chan,*dev_chan;
-		int*esignes;
+		int*esignes,*dev_esignes;
 		vector<vector<int>>neibn;
 		int *mark,*dev_mark;
 		vector<pair<int,int>>stp;
@@ -264,7 +276,7 @@ class BFSor:public algbase
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
-	 	 virtual vector<vector<vector<int>>> routalg(int s,int t,int bw);
+	 	 virtual vector<vector<Rout>> routalg(int s,int t,int bw);
 	 	 virtual void updatE(vector<int>esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual ~BFSor(){dellocate();}
@@ -291,6 +303,10 @@ class PBFSor:public algbase{
 		vector<vector<Sot>>stpairs;
 		vector<int>L;
 		int W;
+		//add
+		vector<vector<vector<int>>>neieid;
+		vector<vector<int>>esigns;
+		int *stid,*dev_stid;
 		PBFSor():L(3,0){};
         void topsort()
         {
@@ -306,7 +322,7 @@ class PBFSor:public algbase{
         	stes=stpair;
         	cout<<"in pathalg init "<<stes.size()<<endl;
         	edges=extenedges.first;
-        	vector<vector<int>>esigns=extenedges.second;
+        	esigns=extenedges.second;
         	edgesize=edges.size(),nodenum=ginf.enodesize,pesize=ginf.pesize,pnodesize=ginf.pnodesize;
         	exn2n=ginf.exn2n;
         	vector<vector<int>>nd(nodenum*LY,vector<int>());
@@ -315,8 +331,6 @@ class PBFSor:public algbase{
         	ancestor=ad;	
     		vector<int>bl(BS,0);
     		leveln=bl;
-    		vector<vector<vector<int>>>nm(BS,vector<vector<int>>());
-    		mask=nm;
     		vector<int>dd(nodenum*LY,inf);
     		dist=dd;
     		vector<int>pp(nodenum*LY,-1);
@@ -328,18 +342,21 @@ class PBFSor:public algbase{
 			{
 				vector<vector<int>>tmpn(nodenum,vector<int>());
 				vector<vector<int>>tmpe(nodenum,vector<int>());
+				vector<vector<int>>tmpeid(nodenum,vector<int>());
 				for(int i=0;i<edges.size();i++)
 					{
 						int s=edges[i].s;
 						int t=edges[i].t;
 						tmpn[s].push_back(t);
-						tmpn[t].push_back(s);
+						//tmpn[t].push_back(s);
 						tmpe[s].push_back(esigns[k][i]);
-						tmpe[t].push_back(esigns[k][i]);
+						tmpeid[s].push_back(i);
+						//tmpe[t].push_back(esigns[k][i]);
 					}
 				
 				neie.push_back(tmpe);
 				nein.push_back(tmpn);
+				neieid.push_back(tmpeid);
 			}
         }
         virtual void updatS(vector<vector<Sot>>&stpair){
@@ -348,12 +365,11 @@ class PBFSor:public algbase{
                	L[1]=LY1;
                	L[2]=LY;
                }
-        virtual vector<vector<vector<int>>> routalg(int s,int t,int bw){
+        virtual vector<vector<Rout>> routalg(int s,int t,int bw){
         	cout<<"in BFS rout alg"<<endl;
 			time_t start,end;
 			start=clock();
-			vector<vector<vector<int>>>result(2,vector<vector<int>>());
-			cout<<"stes size: "<<stes.size()<<endl;
+			vector<vector<Rout>>result(2,vector<Rout>());
 			for(int y=1;y<PC+1;y++)
 			for(int k=L[y-1];k<L[y];k++)
 			{
@@ -365,14 +381,35 @@ class PBFSor:public algbase{
 					vector<int>pre(nodenum,-1);
 					int s=stpairs[y-1][l].s;
 					set<int> ts=stpairs[y-1][l].ts;
+					vector<int>ters=stpairs[y-1][l].ters;
 					int size=stpairs[y-1][l].size;
-					BFS(s,t,dist,pre,neie[k],nein[k],ts,size);
+					BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size);
+					for(int i=0;i<ters.size();i++)
+						{
+							vector<int>rout;
+							int hop=0;
+							int prn=ters[i];
+							int d=dist[ters[i]];
+							int id=stpairs[y-1][l].mmpid[ters[i]];
+							if(prn>=0)
+							{
+								while(prn!=s)
+								{
+									int eid=pre[prn];
+									rout.push_back(eid);
+									prn=edges[eid].s;
+									hop++;
+								}
+							Rout S(s,ters[i],id,d,k,rout);
+							result[y-1].push_back(S);
+							}
+						}
 				}
 			}
 			end=clock();
 			cout<<"cpu time is: "<<end-start<<endl;
 			cout<<"good sofor"<<endl;
-			return vector<vector<vector<int>>>();
+			return result;
 	 	}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
         {

@@ -1,5 +1,5 @@
 #include"BFS.h"
-int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,set<int>sets,int size)
+int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size)
 {
 	int vflag=1;
 	int tnode=-1;
@@ -14,12 +14,12 @@ int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,ve
 		que.pop();
 		for(int i=0;i<nein[node].size();i++)
 		{
-			if(neie[node][i]>0)
+			if(neie[node][i]>0&&esigns[neieid[node][i]]>0)
 			{	
 				int to=nein[node][i];
 				if(dist[to]>dist[node]+1)
 				{
-					pre[to]=node;
+					pre[to]=neieid[node][i];
 					dist[to]=dist[node]+1;
 					que.push(make_pair(to,dist[to]));
 				}
@@ -29,20 +29,5 @@ int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,ve
 			}
 		}
 	}
-	/*cout<<dist[tnode]<<endl;
-	int prn=tnode;
-	int len=0;
-	if(tnode>=0)
-	{
-		int prn=tnode;
-		while(prn!=s)
-		{
-			//cout<<prn<<" ";
-			prn=pre[prn];
-		}
-		//cout<<prn<<" ";
-	}
-	//cout<<endl;
-	result[k].push_back(tv);*/
 	return dist[tnode];
 }
