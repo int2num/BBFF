@@ -13,7 +13,7 @@ void Bellmanor::allocate(int maxn,int maxedge){
 void Bellmanor::topsort()
 {
 };
-void Bellmanor::updatE(vector<int>esigns)
+void Bellmanor::updatE(vector<vector<int>>&esigns)
 {
 }
 void Bellmanor::updatS(vector<vector<Sot>>&stpair)
@@ -170,12 +170,6 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamCreate(&stream0);
 	cudaStream_t stream1;
 	cudaStreamCreate(&stream1);
-	/*for(int i=0;i<8;i++)
-		{
-			for(int j=0;j<nodenum;j++)
-				cout<<d[i*nodenum+j]<<" ";
-			cout<<endl;
-		}*/
 	for(int i=0;i<WD+1;i++)
 	{
 		bellmandu<<<Size[0]/512+1,512,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);

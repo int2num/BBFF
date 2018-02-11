@@ -42,12 +42,13 @@ class Graph
         	ss.insert(5);
         	ss.insert(10);
         	int nut=(IFHOP>0)?(WD+1):1;
+        	int count=0;
         	for(int i=0;i<stpair.size();i++)
 				for(int j=0;j<2;j++)
 				{
 					Sot s(j);
-					s.push(j+1,j);
-					s.push(j+2,j);
+					s.push(j+1,count++);
+					s.push(j+2,count++);
 					stpair[i].push_back(s);
 				}
 			router1.updatS(stpair);
@@ -123,10 +124,10 @@ class Graph
             	for(int j=0;j<2*edges.size();j++)
             	{
             		
-            		//int ran=rand()%100;
-            		//if(ran<20)
-            			//esigns[i].push_back(-1);
-            		//else
+            		int ran=rand()%100;
+            		if(ran<20)
+            			esigns[i].push_back(-1);
+            		else
             			esigns[i].push_back(rand()%10+1);
             	}
             //assdsasd.

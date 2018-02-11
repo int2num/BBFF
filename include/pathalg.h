@@ -21,7 +21,7 @@
 #define LY1 2
 #define LY2 2
 #define YE 2
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 using namespace std;
@@ -65,7 +65,7 @@ class algbase {
     public:
         algbase(){};
         virtual bool cutcake(int)=0;
-        virtual void updatE(vector<int>esigns){};
+        virtual void updatE(vector<vector<int>>&esigns){};
 	 	virtual void updatS(vector<vector<Sot>>&stpair){};	 	 
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo)=0;
 	 	virtual vector<vector<Rout>> routalg(int s,int t,int bw)=0;
@@ -225,7 +225,7 @@ class Bellmanor:public algbase
 	 	 virtual bool cutcake(int index){};
 	 	 virtual vector<vector<Rout>> routalg(int s,int t,int bw);
 	 	 virtual ~Bellmanor(){}
-	 	 virtual void updatE(vector<int>esigns);
+	 	 virtual void updatE(vector<vector<int>>&esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
 };
@@ -271,13 +271,16 @@ class BFSor:public algbase
 		vector<int>nodeoff;
 		vector<int>leveloff;
 		vector<vector<Sot>>stps;
+		int*p,*dev_p;
+		int *stid,*dev_stid;
+		vector<vector<int>>nein,neie;
 	public:
 		 BFSor();
 	 	 void topsort();
 	 	 virtual pair<int,int> prepush(int s,int t,int bw){};
 	 	 virtual bool cutcake(int index){};
 	 	 virtual vector<vector<Rout>> routalg(int s,int t,int bw);
-	 	 virtual void updatE(vector<int>esigns);
+	 	 virtual void updatE(vector<vector<int>>&esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual ~BFSor(){dellocate();}
 	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
@@ -313,7 +316,7 @@ class PBFSor:public algbase{
         }
         virtual bool cutcake(int index){
         }
-        virtual void updatE(vector<int>esigns){
+        virtual void updatE(vector<vector<int>>&esigns){
         	
         };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
@@ -348,12 +351,9 @@ class PBFSor:public algbase{
 						int s=edges[i].s;
 						int t=edges[i].t;
 						tmpn[s].push_back(t);
-						//tmpn[t].push_back(s);
 						tmpe[s].push_back(esigns[k][i]);
 						tmpeid[s].push_back(i);
-						//tmpe[t].push_back(esigns[k][i]);
 					}
-				
 				neie.push_back(tmpe);
 				nein.push_back(tmpn);
 				neieid.push_back(tmpeid);
@@ -390,6 +390,7 @@ class PBFSor:public algbase{
 							int hop=0;
 							int prn=ters[i];
 							int d=dist[ters[i]];
+							if(d>WD)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
 							if(prn>=0)
 							{
