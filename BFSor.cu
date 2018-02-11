@@ -54,10 +54,10 @@ void BFSor::updatS(vector<vector<Sot>>&stpair)
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 }
-void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
+void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,int _nodenum)
 {
 	cout<<"in paraller BFS init"<<endl;
-	nodenum=ginf.pnodesize;
+	nodenum=_nodenum;
 	edges=ext.first;
 	vector<vector<int>>esigns;
 	esigns=ext.second;

@@ -58,10 +58,10 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 }
-void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf)
+void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,int _nodenum)
 {
 	cout<<"init bellmanor"<<endl;
-	nodenum=ginf.pnodesize;
+	nodenum=_nodenum;
 	edges=ext.first;
 	esigns=ext.second;
 	stp=stpair;
@@ -196,17 +196,11 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	/*for(int i=0;i<8;i++)
-	{
-		for(int j=0;j<nodenum;j++)
-			cout<<d[i*nodenum+j]<<" ";
-		cout<<endl;
-	}*/
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
-	cout<<"offer is "<<offer<<endl;
+	//cout<<"offer is "<<offer<<endl;
 	cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
-	cout<<"size of "<<esigns.size()<<" "<<endl;
+	//cout<<"size of "<<esigns.size()<<" "<<endl;
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];

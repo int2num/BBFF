@@ -4,6 +4,7 @@
 #include"edge.h"
 #include"pathalg.h"
 #include<set>
+#include<queue>
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -19,6 +20,7 @@ struct fedge{
 	int from,to,price,cap;
 	fedge(int f,int t,int p,int c):from(f),to(t),price(p),cap(c){};
 };
+
 class Graph
 {
     public:
@@ -29,34 +31,140 @@ class Graph
         int n,width,maxnode,maxedge;
         vector<int>etn2n,exe2e;
         vector<vector<int>>relate,neartable;
+        vector<vector<int>>esignes;
         algbase&router1;
         algbase&router2;
         pair<int,int>prepush(int s,int t,int n,ofstream& out)
         {
         	return make_pair(0,0);
         }
-        pair<int,int>routalg(int s,int t,int bw)
+        
+        void routalg(int s,int t,int bw)
 		{
+        	vector<demand>ds1,ds2;
+        	set<pair<int,int>>s1,s2;
+        	vector<vector<pair<int,int>>>sarray1(100,vector<pair<int,int>>());
+        	vector<vector<pair<int,int>>>sarray2(100,vector<pair<int,int>>());
+        	cout<<"what f"<<endl;
+        	int c1=0,c2=0;
+        	for(int i=0;i<100;i++)
+        		{
+        		int s=rand()%50;
+        		int t=s;
+        		while(t==s)t=rand()%50;
+        		if(s1.find(make_pair(s,t))==s1.end())
+        			{
+        				s1.insert(make_pair(s,t));
+        				ds1.push_back(demand(s,t,c1++));
+        				sarray1[s].push_back(make_pair(t,c1-1));
+        			}
+        		}
+        	for(int i=0;i<100;i++)
+        		{
+        		int s=rand()%50;
+        		int t=s;
+        		while(t==s)t=rand()%50;
+        		if(s2.find(make_pair(s,t))==s2.end())
+        			{
+        				s2.insert(make_pair(s,t));
+        				ds2.push_back(demand(s,t,c2++));
+        				sarray2[s].push_back(make_pair(t,c2-1));
+        			}
+        		}
+
         	vector<vector<Sot>>stpair(PC,vector<Sot>());
-        	set<int>ss;
-        	ss.insert(5);
-        	ss.insert(10);
-        	int nut=(IFHOP>0)?(WD+1):1;
-        	int count=0;
-        	for(int i=0;i<stpair.size();i++)
-				for(int j=0;j<2;j++)
+        	for(int i=0;i<sarray1.size();i++)
+        		{
+        		if(sarray1[i].size()==0)continue;
+        		Sot S(i);
+        		for(int j=0;j<sarray1[i].size();j++)
+        			S.push(sarray1[i][j].first,sarray1[i][j].second);
+        		stpair[0].push_back(S);	
+        		}	
+        	for(int i=0;i<sarray2.size();i++)
+        		{
+        		if(sarray2[i].size()==0)continue;
+        		Sot S(i);
+        		for(int j=0;j<sarray2[i].size();j++)
+        			S.push(sarray2[i][j].first,sarray2[i][j].second);
+        		stpair[1].push_back(S);	
+        		}
+        	
+        	router1.updatS(stpair);
+        	vector<vector<Rout>> result=router1.routalg(0,0,0);
+        	cout<<"returned!!!!"<<endl;
+        	
+        	
+        	
+        	
+        	for(int i=0;i<result[0].size();i++)
+        	{
+        		int id=result[0][i].id;
+        		ds1[id].backroute.push(result[0][i]);
+        	}
+        	for(int i=0;i<result[1].size();i++)
+			{
+				int id=result[1][i].id;
+				ds2[id].backroute.push(result[1][i]);
+			}
+        	priority_queue<demand,vector<demand>,compd>dsque1,dsque2;
+        	for(int i=0;i<ds1.size();i++)
+        		dsque1.push(ds1[i]);
+        	
+        	cout<<"size of ds2 is"<<ds2.size()<<endl;
+        	for(int i=0;i<ds2.size();i++)
+        		dsque2.push(ds2[i]);
+        	cout<<"dsque2: "<<dsque2.empty()<<endl;
+
+        	while(!dsque1.empty())
+        	{
+        		demand nde=dsque1.top();
+        		dsque1.pop();
+        		int flag=0;
+        		//cout<<nde.s<<" "<<nde.t<<":"<<endl;
+        		while(!nde.backroute.empty())
+        		{
+        			vector<int>rout=nde.backroute.top().routes;
+        			int k=nde.backroute.top().ly;
+        			nde.backroute.pop();
+        			flag++;
+        			for(int i=0;i<rout.size();i++)
+        				if(esignes[k][i]<0)
+        					continue;
+        			for(int i=0;i<rout.size();i++)
+        				esignes[k][i]*=-1;
+        			flag=rout.size();
+        			break;
+        		}
+        		//if(flag==0)cout<<"ops!!!!"<<endl;
+        		cout<<flag<<endl;
+        	}
+        	
+        	cout<<"level of 2"<<endl;
+        	cout<<"dsque2: "<<dsque2.empty()<<endl;
+        	while(!dsque2.empty())
+			{
+				demand nde=dsque2.top();
+				dsque2.pop();
+				int flag=0;
+				//cout<<nde.s<<" "<<nde.t<<":"<<endl;
+				while(!nde.backroute.empty())
 				{
-					Sot s(j);
-					s.push(j+1,count++);
-					s.push(j+2,count++);
-					stpair[i].push_back(s);
+					vector<int>rout=nde.backroute.top().routes;
+					int k=nde.backroute.top().ly;
+					nde.backroute.pop();
+					flag++;
+					for(int i=0;i<rout.size();i++)
+						if(esignes[k][i]<0)
+							continue;
+					for(int i=0;i<rout.size();i++)
+						esignes[k][i]*=-1;
+					flag=rout.size();
+					break;
 				}
-			router1.updatS(stpair);
-			router1.routalg(0,0,0);
-			router2.updatS(stpair);
-			router2.routalg(0,0,0);
-			int flag=0;
-			return make_pair(0,0);
+				//if(flag==0)cout<<"ops!!!!"<<endl;
+				cout<<flag<<endl;
+			}
 		}
         virtual ~Graph(){};
     protected:
@@ -130,6 +238,7 @@ class Graph
             		else
             			esigns[i].push_back(rand()%10+1);
             	}
+            esignes=esigns;
             //assdsasd.
             int W=WD+1;
             vector<vector<int>>nesigns(LY,vector<int>());
@@ -161,13 +270,14 @@ class Graph
             int count=0;
             if(IFHOP>0)
             	{
-            	router1.init(make_pair(nedges,nesigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n,maxnode+1,etn2n));
-            	router2.init(make_pair(nedges,nesigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n,maxnode+1,etn2n));
+            	router1.init(make_pair(nedges,nesigns),stpair,n);
+            	//router2.init(make_pair(nedges,nesigns),stpair,n);
             	}
            	else
             {
-            	router1.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
-            	router2.init(make_pair(redges,esigns),stpair,erelate,ginfo(maxedge+1,edges.size(),n/W,maxnode+1,etn2n));
+           		cout<<"wgat f "<<n/W<<endl;
+            	router1.init(make_pair(redges,esigns),stpair,n/W);
+            	//router2.init(make_pair(redges,esigns),stpair,n/W);
             }
             return make_pair(redges,esigns);
         };

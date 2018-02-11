@@ -13,14 +13,14 @@
 #include"BFS.h"
 #define ML 50
 #define BS 5
-#define WD 3
+#define WD 8
 #ifndef LY 
-	#define LY 4
+	#define LY 100
 #endif
 #define PC 2
-#define LY1 2
-#define LY2 2
-#define YE 2
+#define LY1 50
+#define LY2 50
+#define YE 100
 #define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
@@ -29,10 +29,10 @@ using namespace std;
 struct Rout{
 	int s,t;
 	int id;
-	int hops;
+	int di;
 	int ly;
 	vector<int>routes;
-	Rout(int s,int t,int id,int hops,int ly,vector<int>&routes){};
+	Rout(int _s,int _t,int _id,int _hops,int _ly,vector<int>&_routes):s(_s),t(_t),id(_id),di(_hops),ly(_ly),routes(_routes){};
 };
 struct Sot{
 	int s;
@@ -51,6 +51,31 @@ struct Sot{
 		return true;
 	}
 };
+class comp{
+	public:
+	bool operator()(Rout& r1,Rout& r2)
+	{
+		if(r1.di>r2.di)
+			return true;
+		return false;
+	};
+};
+struct demand{
+	priority_queue<Rout,vector<Rout>,comp> backroute;
+	int id;
+	int value;
+	int s,t;
+	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id){};
+};
+class compd{
+	public:
+	bool operator()(demand &d1,demand& d2)
+	{
+		if(d1.backroute.top().di>d2.backroute.top().di)
+			return true;
+		return false;
+	};
+};
 class algbase {
     protected:
         vector<int> getrout(int &s, int &t, vector<edge> &edges, vector<int> &pre) {
@@ -68,7 +93,7 @@ class algbase {
         virtual bool cutcake(int)=0;
         virtual void updatE(vector<vector<int>>&esigns){};
 	 	virtual void updatS(vector<vector<Sot>>&stpair){};	 	 
-        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo)=0;
+        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum)=0;
 	 	virtual vector<vector<Rout>> routalg(int s,int t,int bw)=0;
 	 	virtual pair<int,int> prepush(int s,int t,int bw)=0;
 };
@@ -109,11 +134,12 @@ class PBellmanor:public algbase{
         }
         virtual bool cutcake(int index){
         }
-        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
+        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	stes=stpair;
         	edges=extenedges.first;
         	esigns=extenedges.second;
-        	edgesize=edges.size(),nodenum=ginf.enodesize;
+        	edgesize=edges.size();
+        	nodenum=_nodenum;
 			W=WD+1;
 			for(int k=0;k<LY;k++)
 			{
@@ -263,7 +289,7 @@ class Bellmanor:public algbase
 	 	 virtual ~Bellmanor(){}
 	 	 virtual void updatE(vector<vector<int>>&esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
-	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
+	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum);
 };
 class BFSor:public algbase
 {
@@ -319,7 +345,7 @@ class BFSor:public algbase
 	 	 virtual void updatE(vector<vector<int>>&esigns);
 	 	 virtual void updatS(vector<vector<Sot>>&stpair);	 	 
 	 	 virtual ~BFSor(){dellocate();}
-	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf);
+	 	 virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum);
 };
 
 class PBFSor:public algbase{
@@ -355,15 +381,14 @@ class PBFSor:public algbase{
         virtual void updatE(vector<vector<int>>&esigns){
         	
         };
-        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,vector<vector<int>>&relate,ginfo ginf){
+        virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	maxbw=500;
-        	rela=relate;
         	stes=stpair;
         	cout<<"in pathalg init "<<stes.size()<<endl;
         	edges=extenedges.first;
         	esigns=extenedges.second;
-        	edgesize=edges.size(),nodenum=ginf.enodesize,pesize=ginf.pesize,pnodesize=ginf.pnodesize;
-        	exn2n=ginf.exn2n;
+        	edgesize=edges.size(),
+        	nodenum=_nodenum;
         	vector<vector<int>>nd(nodenum*LY,vector<int>());
         	neibour=nd;
         	vector<int>ad(nodenum*LY,0);
@@ -394,6 +419,7 @@ class PBFSor:public algbase{
 				nein.push_back(tmpn);
 				neieid.push_back(tmpeid);
 			}
+			cout<<"out "<<endl;
         }
         virtual void updatS(vector<vector<Sot>>&stpair){
                	stpairs=stpair;
@@ -426,7 +452,7 @@ class PBFSor:public algbase{
 							int hop=0;
 							int prn=ters[i];
 							int d=dist[ters[i]];
-							if(pre[prn]<0&&pre[prn]>WD)continue;
+							if(pre[prn]<0&&d>WD)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
 							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
 							if(prn>=0)
