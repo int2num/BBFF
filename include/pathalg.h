@@ -92,8 +92,7 @@ class PBellmanor:public algbase{
 		int W;
 		vector<vector<Sot>>stpairs;
 		vector<int>L;
-		
-		
+		//
 		vector<vector<vector<int>>>neieid;
 		vector<vector<int>>esigns;
 		
@@ -149,8 +148,42 @@ class PBellmanor:public algbase{
 						{	
 							int s=stpairs[y-1][l].s*(WD+1);
 							set<int>ts=stpairs[y-1][l].ts;
+							vector<int>ters=stpairs[y-1][l].ters;
 							int size=stpairs[y-1][l].size;
 							dijkstra(s,t,d,peg,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
+							for(int i=0;i<ters.size();i++)
+							{
+								vector<int>rout;
+								int hop=0;
+								int tt=ters[i];
+								int d=dist[ters[i]];
+								int prn=-1;
+								for(int i=1;i<W;i++)
+									{
+										if(peg[tt*W+i]>=0)
+											{	
+												prn=tt*W+i;
+												break;
+											}
+									}
+								//cout<<s<<" "<<ters[i]<<": "<<prn<<endl;
+								if(prn<0)continue;
+								int id=stpairs[y-1][l].mmpid[ters[i]];
+								if(prn>=0)
+								{
+									while(prn!=s)
+									{
+										int eid=peg[prn];
+										rout.push_back(eid);
+										//cout<<prn<<" ";
+										prn=edges[eid].s;
+										hop++;
+									}
+								cout<<endl;
+								Rout S(s,ters[i],id,d,k,rout);
+								result[y-1].push_back(S);
+								}
+							}
 						}
 					}
         		end=clock();
@@ -390,7 +423,7 @@ class PBFSor:public algbase{
 							int hop=0;
 							int prn=ters[i];
 							int d=dist[ters[i]];
-							if(d>WD)continue;
+							if(pre[prn]<0)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
 							if(prn>=0)
 							{
