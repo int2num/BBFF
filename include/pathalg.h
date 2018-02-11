@@ -166,7 +166,6 @@ class PBellmanor:public algbase{
 												break;
 											}
 									}
-								//cout<<s<<" "<<ters[i]<<": "<<prn<<endl;
 								if(prn<0)continue;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								if(prn>=0)
@@ -175,11 +174,9 @@ class PBellmanor:public algbase{
 									{
 										int eid=peg[prn];
 										rout.push_back(eid);
-										//cout<<prn<<" ";
 										prn=edges[eid].s;
 										hop++;
 									}
-								cout<<endl;
 								Rout S(s,ters[i],id,d,k,rout);
 								result[y-1].push_back(S);
 								}
@@ -239,6 +236,7 @@ class Bellmanor:public algbase
 		int *mark,*dev_mark;
 		int*rudu,*dev_rudu;
 		int*rudw,*dev_rudw;
+		int*ruid,*dev_ruid;
 		int mm;
 		vector<pair<int,int>>stp;
 		//
@@ -250,7 +248,7 @@ class Bellmanor:public algbase
 		vector<int>nodeoff;
 		vector<int>leveloff;
 		vector<vector<Sot>>stps;
-		
+		vector<vector<int>>rus,ruw;
 	public:
 		 Bellmanor();
 	 	 void topsort();
