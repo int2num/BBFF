@@ -154,12 +154,15 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	}*/
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
+	vector<int>LL(3,0);
+	LL=L;
+	LL[2]+=LL[1];
 	for(int y=1;y<PC+1;y++)
-		for(int k=L[y-1];k<L[y];k++)
+		for(int k=LL[y-1];k<LL[y];k++)
 		{
 			int off=0;
 			if(y==1)off=k*nodenum*stps[0].size();
-			if(y==2)off=offer+k*nodenum*stps[1].size();	
+			if(y==2)off=offer+(k-LL[1])*nodenum*stps[1].size();	
 			for(int l=0;l<stps[y-1].size();l++)
 			{	
 				int s=stps[y-1][l].s;

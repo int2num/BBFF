@@ -13,7 +13,7 @@
 #include"BFS.h"
 #define ML 50
 #define BS 5
-#define WD 10
+#define WD 3
 #ifndef LY 
 	#define LY 4
 #endif
@@ -138,6 +138,7 @@ class PBellmanor:public algbase{
         		time_t start,end;
         		start=clock();
         		vector<vector<Rout>>result(2,vector<Rout>());
+        		cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
         		for(int y=1;y<PC+1;y++)
 					for(int k=L[y-1];k<L[y];k++)
 					{
@@ -156,7 +157,6 @@ class PBellmanor:public algbase{
 								vector<int>rout;
 								int hop=0;
 								int tt=ters[i];
-								int d=dist[ters[i]];
 								int prn=-1;
 								for(int i=1;i<W;i++)
 									{
@@ -167,6 +167,8 @@ class PBellmanor:public algbase{
 											}
 									}
 								if(prn<0)continue;
+								int di=d[prn];
+								cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<di<<endl;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								if(prn>=0)
 								{
@@ -175,9 +177,11 @@ class PBellmanor:public algbase{
 										int eid=peg[prn];
 										rout.push_back(eid);
 										prn=edges[eid].s;
+										cout<<prn<<" ";
 										hop++;
 									}
-								Rout S(s,ters[i],id,d,k,rout);
+									cout<<endl;
+								Rout S(s,ters[i],id,di,k,rout);
 								result[y-1].push_back(S);
 								}
 							}
@@ -249,6 +253,7 @@ class Bellmanor:public algbase
 		vector<int>leveloff;
 		vector<vector<Sot>>stps;
 		vector<vector<int>>rus,ruw;
+		vector<vector<int>>esigns;
 	public:
 		 Bellmanor();
 	 	 void topsort();

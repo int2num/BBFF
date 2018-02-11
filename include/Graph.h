@@ -124,11 +124,11 @@ class Graph
             	for(int j=0;j<2*edges.size();j++)
             	{
             		
-            		int ran=rand()%100;
+            		/*int ran=rand()%100;
             		if(ran<20)
             			esigns[i].push_back(-1);
-            		else
-            			esigns[i].push_back(rand()%10+1);
+            		else*/
+            		esigns[i].push_back(rand()%10+1);
             	}
             //assdsasd.
             int W=WD+1;
