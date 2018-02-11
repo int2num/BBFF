@@ -24,6 +24,7 @@
 #define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
+#define NUT ((IFHOP>0)?(WD+1):1)
 using namespace std;
 struct Rout{
 	int s,t;
@@ -147,7 +148,7 @@ class PBellmanor:public algbase{
 						vector<int>peg(nodenum,-1);
 						for(int l=0;l<stpairs[y-1].size();l++)
 						{	
-							int s=stpairs[y-1][l].s*(WD+1);
+							int s=stpairs[y-1][l].s*(NUT);
 							set<int>ts=stpairs[y-1][l].ts;
 							vector<int>ters=stpairs[y-1][l].ters;
 							int size=stpairs[y-1][l].size;
@@ -157,18 +158,19 @@ class PBellmanor:public algbase{
 								vector<int>rout;
 								int hop=0;
 								int tt=ters[i];
+								int min=INF;
 								int prn=-1;
 								for(int i=1;i<W;i++)
-									{
-										if(peg[tt*W+i]>=0)
-											{	
-												prn=tt*W+i;
-												break;
-											}
+								{
+									if(d[tt*W+i]<min)
+									{	
+										min=d[tt*W+i];
+										prn=tt*W+i;
 									}
+								}
 								if(prn<0)continue;
 								int di=d[prn];
-								cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<di<<endl;
+								//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<di<<endl;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								if(prn>=0)
 								{
@@ -177,10 +179,8 @@ class PBellmanor:public algbase{
 										int eid=peg[prn];
 										rout.push_back(eid);
 										prn=edges[eid].s;
-										cout<<prn<<" ";
 										hop++;
 									}
-									cout<<endl;
 								Rout S(s,ters[i],id,di,k,rout);
 								result[y-1].push_back(S);
 								}

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <cuda.h>
 #include"pathalg.h"
-#define INF 100000
 static const int WORK_SIZE =258;
 void Bellmanor::copydata(int s,vector<edge>&edges,int nodenum){
 };
@@ -49,7 +48,7 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 			{
 			for(int j=0;j<stpair[h].size();j++)
 				{
-				 d[count*nodenum+stpair[h][j].s*nut]=0;
+				 d[count*nodenum+stpair[h][j].s*NUT]=0;
 				 count++;
 				}
 			}
@@ -219,7 +218,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 			if(y==2)off=offer+(k-LL[1])*nodenum*stps[1].size();	
 			for(int l=0;l<stps[y-1].size();l++)
 			{	
-				int s=stps[y-1][l].s*(WD+1);
+				int s=stps[y-1][l].s*NUT;
 				vector<int>ters=stps[y-1][l].ters;
 				off+=l*nodenum;
 				for(int i=0;i<ters.size();i++)
@@ -232,7 +231,6 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 					int prn=-1;
 					for(int i=1;i<W;i++)
 						{
-						//cout<<d[off+tt*W+i]<<" ";
 						if(d[off+tt*W+i]<min)
 							{	
 								min=d[off+tt*W+i];
@@ -241,7 +239,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 						}
 					int node=prn-off;
 					if(prn<0)continue;
-					cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<min<<" :"<<endl;
+					//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<min<<" :"<<endl;
 					while(node!=s)
 						{
 							for(int i=0;i<rus[node].size();i++)
@@ -249,25 +247,13 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 									if(esigns[k][ruw[node][i]]+d[off+rus[node][i]]==d[off+node])
 									{
 										rout.push_back(ruw[node][i]);
-										//cout<<edges[ruw[node][i]].t<<" "<<edges[ruw[node][i]].s<<" ";
 										node=rus[node][i];
 										break;
 									}
 								}
 						}
-					//cout<<endl;
-					/*if(prn>=0)
-					{
-						while(prn!=s+off)
-						{
-							int eid=p[prn];
-							rout.push_back(eid);
-							prn=edges[eid].s+off;
-							hop++;
-						}
-						Rout S(s,t,id,ds,k,rout);
-						result[y-1].push_back(S);
-					}	*/				
+					Rout S(s/NUT,tt,id,min,k,rout);
+					result[y-1].push_back(S);
 				}
 			}
 		}
