@@ -31,9 +31,9 @@ struct event{
 	int time;
 	vector<int>rout;
 	int level;
-	event(int fuh,int tt,int _rout=vector<int>(),int level=0):fuhao(fuh),time(tt),rout(_rout){}
+	event(int fuh,int tt,vector<int>_rout=vector<int>(),int _level=-1):fuhao(fuh),time(tt),rout(_rout),level(_level){};
 	
-}
+};
 struct Rout{
 	int s,t;
 	int id;
@@ -75,7 +75,7 @@ struct demand{
 	int s,t;
 	int mark;
 	vector<int>rout;
-	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id),mark(0){};
+	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id),mark(-1){};
 };
 class compd{
 	public:

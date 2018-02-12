@@ -21,7 +21,9 @@ void BFSor::updatE(vector<vector<int>>&esigns)
 			{
 				if(esigns[k][neie[i][j]]<0)
 					te[count]=i;
-				count++;
+				else
+					te[count]=nein[i][j];
+			    count++;
 			}
 	cudaMemcpy(dev_te,te,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 };
@@ -38,6 +40,8 @@ void BFSor::updatS(vector<vector<Sot>>&stpair)
 	for(int i=0;i<nodenum*ncount;i++)
 		d[i]=INF,p[i]=-1;
 	int nut=(IFHOP>0)?(WD+1):1;
+	for(int i=0;i<nodenum*LY*YE;i++)
+			d[i]=WD+1,p[i]=-1;
 	for(int k=0;k<L[1];k++)
 		{
 		for(int j=0;j<stpair[0].size();j++)
@@ -196,9 +200,9 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
 	cout<<"over!"<<endl;
-	cudaFree(dev_te);
-	cudaFree(dev_st);
-	cudaFree(dev_d);
+	//cudaFree(dev_te);
+	//cudaFree(dev_st);
+	//cudaFree(dev_d);
 	cout<<"before return"<<endl;
 	return result;
 };

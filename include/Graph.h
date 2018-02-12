@@ -5,7 +5,8 @@
 #include"pathalg.h"
 #include<set>
 #include<queue>
-#define lambda 0.2
+#define LAMBDA 0.5
+#define ADDNUM 1000
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -21,7 +22,7 @@ struct fedge{
 	int from,to,price,cap;
 	fedge(int f,int t,int p,int c):from(f),to(t),price(p),cap(c){};
 };
-double cls_random::randomExponential(double lambda)
+double randomExponential(double lambda)
 {
     double pV = 0.0;
     while(true)
@@ -34,7 +35,7 @@ double cls_random::randomExponential(double lambda)
     }
     pV = (-1.0/lambda)*log(1-pV);
     return pV;
-}
+};
 class Graph
 {
     public:
@@ -48,11 +49,53 @@ class Graph
         vector<vector<int>>esignes;
         algbase&router1;
         algbase&router2;
-        priority_queue<event,vector<event>,cmm>timeque;
-        
-        pair<int,int>prepush(int s,int t,int n,ofstream& out)
+        int current;
+        priority_queue<event,vector<event>,cevent>timeque;
+        vector<double>average;
+        vector<int>blocks;
+        int busy;
+        void run()
         {
-        	return make_pair(0,0);
+        	busy=0;
+        	int count=0;
+        	current=0;
+        	int release=0;
+        	while(!timeque.empty())
+        	{
+        		cout<<"asasdasda"<<endl;
+        		event ee=timeque.top();
+        		count++;
+        		current=ee.time;
+        		if(current>500)break;
+        		if(ee.fuhao>0)
+        			{
+        				cout<<"adding................. "<<current<<endl;
+        				routalg(0,0,0);
+        				count++;
+        				//if(count>1)
+        				//	break;
+        			}
+        		else
+        			{
+        				cout<<"subing.................."<<current<<endl;
+        				for(int i=0;i<ee.rout.size();i++)
+        					{
+        						esignes[ee.level][ee.rout[i]]*=-1;
+        						release++;
+        					}
+        				router1.updatE(esignes);
+        				router2.updatE(esignes);
+        			}
+        	timeque.pop();
+        	}
+        	cout<<"release: "<<release<<endl;
+        	cout<<"beasy: "<<busy<<endl;
+        	for(int i=0;i<average.size();i++)
+        		cout<<average[i]<<" ";
+        	cout<<endl;
+        	for(int i=0;i<blocks.size();i++)
+        		cout<<blocks[i]<<" ";
+        	cout<<endl;
         }
         vector<vector<Sot>>Getspair(vector<vector<demand>>&ds)
 		{
@@ -128,28 +171,32 @@ class Graph
 					
 					while(!nde.backroute.empty())
 					{
+						int ly=nde.backroute.top().ly;
 						vector<int>rout=nde.backroute.top().routes;
 						int k=nde.backroute.top().ly;
 						nde.backroute.pop();
 						for(int i=0;i<rout.size();i++)
-							if(esignes[k][i]<0)
+							if(esignes[k][rout[i]]<0)
 								{
 									flag=-1;
 									continue;
 								}
 						for(int i=0;i<rout.size();i++)
-							esignes[k][i]*=-1;
+							{esignes[k][rout[i]]*=-1;
+								busy++;
+							}
 						flag=rout.size();
 						nde.rout=rout;
+						nde.mark=ly;
 						addin.push_back(nde);
 						break;
 					}
 					if(flag==0){
-						cout<<"blocking"<<endl;
+						//cout<<"blocking"<<endl;
 						block.push_back(nde);
 					}
 					if(flag<0){
-						cout<<"remaining"<<endl;
+						//cout<<"remaining"<<endl;
 						remain[k].push_back(nde);
 					}
 					//scout<<flag<<endl;
@@ -159,8 +206,9 @@ class Graph
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	tasknum.push_back(200);
-        	tasknum.push_back(600);
+        	int num=rand()%10+10;
+        	tasknum.push_back(num*2);
+        	tasknum.push_back(num*6);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
@@ -174,6 +222,15 @@ class Graph
 			int count=0;
 			for(int i=0;i<addin.size();i++)
 				count+=addin[i].rout.size();
+			for(int i=0;i<addin.size();i++)
+			{
+				int serv=0;//randomExponential(LAMBDA);
+				demand dd=addin[i];
+				if(serv+current+1<ADDNUM)
+					timeque.push(event(-1,serv+current+1,dd.rout,dd.mark));
+			}
+			average.push_back((double)count/(double)addin.size());
+			blocks.push_back(block.size());
 			cout<<"add in rout cost is "<<count<<endl;
 			cout<<"add in is "<<addin.size()<<endl;
 			cout<<"time is"<<end-start<<endl;
@@ -195,6 +252,7 @@ class Graph
         					vector<int> rout=router1.tunel(s,t,k);
         					if(rout.size()>0){
         						ds[y-1][i].rout=rout;
+        						ds[y-1][i].mark=k;
         						addin.push_back(ds[y-1][i]);
         						flag=1;
         						break;
@@ -205,7 +263,9 @@ class Graph
         		}
         	
         }
-        virtual ~Graph(){ srand(1);};
+        virtual ~Graph(){ 
+        	srand(1);
+        };
     protected:
         void addedge(int _s,int _t,int _w,double _bw=500){
             neartable[_s].push_back(edges.size());
@@ -215,6 +275,12 @@ class Graph
         };
         virtual void GenGraph()=0;
         Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),neartable(_n,vector<int>()){
+        	for(int i=0;i<ADDNUM;i++)
+        	{
+        		int k=rand()%100;
+        		if(k<30)
+        			timeque.push(event(1,i));
+        	}
         };
         pair<vector<edge>,vector<vector<int>>> extend()
         {
