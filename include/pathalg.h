@@ -15,11 +15,11 @@
 #define BS 5
 #define WD 3
 #ifndef LY 
-	#define LY 4
+	#define LY 100
 #endif
 #define PC 2
-#define LY1 2
-#define LY2 2
+#define LY1 50
+#define LY2 50
 #define YE 100
 #define IFHOP 0
 #define inf INT_MAX/2
@@ -465,7 +465,7 @@ class PBFSor:public algbase{
 							int d=dist[ters[i]];
 							if(pre[prn]<0&&d>WD)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
-							cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
+							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
 							if(prn>=0)
 							{
 								while(prn!=s)

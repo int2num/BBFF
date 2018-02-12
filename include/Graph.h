@@ -49,7 +49,6 @@ class Graph
         			if(dd.mark==1)continue;
         			sarray[k][dd.s].push_back(make_pair(dd.t,dd.id));
         		}
-        		       
         	}
         	vector<vector<Sot>>stpair(PC,vector<Sot>());
         	for(int k=0;k<PC;k++)
@@ -65,100 +64,91 @@ class Graph
         	}
         	return stpair;
 		}
+        vector<vector<demand>> 	Gendemand(vector<int>&tasknum)
+		{
+        	vector<vector<demand>>ds(PC,vector<demand>());
+			int c1=0;
+			for(int k=0;k<PC;k++)
+			{
+				set<pair<int,int>>se;
+				c1=0;
+				for(int i=0;i<tasknum[k];i++)
+				{
+				int s=rand()%n;
+				int t=s;
+				while(t==s)t=rand()%n;
+				if(se.find(make_pair(s,t))==se.end())
+					{
+						se.insert(make_pair(s,t));
+						ds[k].push_back(demand(s,t,c1++));
+					}
+				}
+			}
+			return ds;
+		}
+        vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
+		{
+        	vector<vector<Sot>>stpair=Getspair(ds);
+			router2.updatS(stpair);
+			vector<vector<Rout>> result=router2.routalg(0,0,0);
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<result[k].size();i++)
+				{
+					int id=result[k][i].id;
+					ds[k][id].backroute.push(result[k][i]);
+				}
+			vector<priority_queue<demand,vector<demand>,compd>>dsque(2,priority_queue<demand,vector<demand>,compd>());
+			vector<vector<demand>>remain(PC,vector<demand>());
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<ds[k].size();i++)
+					dsque[k].push(ds[k][i]);
+			for(int k=0;k<PC;k++)
+				while(!dsque[k].empty())
+				{
+					demand nde=dsque[k].top();
+					dsque[k].pop();
+					int flag=0;
+					while(!nde.backroute.empty())
+					{
+						vector<int>rout=nde.backroute.top().routes;
+						int k=nde.backroute.top().ly;
+						nde.backroute.pop();
+						for(int i=0;i<rout.size();i++)
+							if(esignes[k][i]<0)
+								{
+								flag=-1;
+								continue;
+								}
+						for(int i=0;i<rout.size();i++)
+							esignes[k][i]*=-1;
+						flag=rout.size();
+						addin.push_back(nde);
+						break;
+					}
+					if(flag==0){
+						block.push_back(nde);
+					}
+					if(flag<0){
+						remain[k].push_back(nde);
+					}
+					//scout<<flag<<endl;
+				}
+			return remain;
+		}
         void routalg(int s,int t,int bw)
 		{
-        	vector<vector<demand>>ds(2,vector<demand>());
-        	int c1=0,c2=0;
-        	for(int k=0;k<PC;k++)
-        	{
-        		set<pair<int,int>>se;
-        		for(int i=0;i<5;i++)
-        		{
-        		int s=rand()%5;
-        		int t=s;
-        		while(t==s)t=rand()%5;
-        		if(se.find(make_pair(s,t))==se.end())
-        			{
-        				se.insert(make_pair(s,t));
-        				cout<<s<<" "<<t<<endl;
-        				ds[k].push_back(demand(s,t,c1++));
-        			}
-        		}
-        	}
-        	cout<<endl;
-        	vector<vector<Sot>>stpair=Getspair(ds);
-        	for(int k=0;k<PC;k++)
-        	{
-        		for(int j=0;j<stpair[k].size();j++)
-        			cout<<stpair[k][j].s<<" "<<stpair[k][j].ts.size()<<endl;
-        	}
-        	router1.updatS(stpair);
-        	vector<vector<Rout>> result=router1.routalg(0,0,0);
-        	/*cout<<"returned!!!!"<<endl;
-        	for(int i=0;i<result[0].size();i++)
-        	{
-        		int id=result[0][i].id;
-        		ds1[id].backroute.push(result[0][i]);
-        	}
-        	for(int i=0;i<result[1].size();i++)
-			{
-				int id=result[1][i].id;
-				ds2[id].backroute.push(result[1][i]);
-			}
-        	//que;
-        	priority_queue<demand,vector<demand>,compd>dsque1,dsque2;
-        	for(int i=0;i<ds1.size();i++)
-        		dsque1.push(ds1[i]);
-        	
-        	cout<<"size of ds2 is"<<ds2.size()<<endl;
-        	for(int i=0;i<ds2.size();i++)
-        		 dsque1.push(ds2[i]);
-        	while(!dsque1.empty())
-        	{
-        		demand nde=dsque1.top();
-        		dsque1.pop();
-        		int flag=0;
-        		//cout<<nde.s<<" "<<nde.t<<":"<<endl;
-        		while(!nde.backroute.empty())
-        		{
-        			vector<int>rout=nde.backroute.top().routes;
-        			int k=nde.backroute.top().ly;
-        			nde.backroute.pop();
-        			for(int i=0;i<rout.size();i++)
-        				if(esignes[k][i]<0)
-        					continue;
-        			for(int i=0;i<rout.size();i++)
-        				esignes[k][i]*=-1;
-        			flag=rout.size();
-        			break;
-        		}
-				if(flag==0)cout<<"ops!!!!"<<endl;
-        		cout<<flag<<endl;
-        	}
-        	cout<<"level of 2"<<endl;
-        	cout<<"dsque2: "<<dsque2.empty()<<endl;
-        	while(!dsque2.empty())
-			{
-				demand nde=dsque2.top();
-				dsque2.pop();
-				int flag=0;
-				//cout<<nde.s<<" "<<nde.t<<":"<<endl;
-				while(!nde.backroute.empty())
-				{
-					vector<int>rout=nde.backroute.top().routes;
-					int k=nde.backroute.top().ly;
-					nde.backroute.pop();
-					for(int i=0;i<rout.size();i++)
-						if(esignes[k][i]<0)
-							continue;
-					for(int i=0;i<rout.size();i++)
-						esignes[k][i]*=-1;
-					flag=rout.size();
-					break;
-				}
-				if(flag==0)cout<<"ops!!!!"<<endl;
-				cout<<flag<<endl;
-			}*/
+        	vector<int>tasknum;
+        	tasknum.push_back(200);
+        	tasknum.push_back(200);
+        	vector<vector<demand>>ds=Gendemand(tasknum);
+			vector<demand>block;
+			vector<demand>addin;
+			time_t start=clock();
+			while(ds[0].size()>0||ds[1].size()>0)
+				ds=greedy(ds,addin,block);
+			time_t end=clock();
+			cout<<"time is"<<end-start<<endl;
+
 		}
         virtual ~Graph(){ srand(1);};
     protected:
@@ -239,7 +229,6 @@ class Graph
             vector<edge>nedges;
             if(IFHOP>0)
             {
-				n=n*W;
 				for(int i=0;i<redges.size();i++)
 				{
 					int s=redges[i].s;
@@ -267,8 +256,8 @@ class Graph
             int count=0;
             if(IFHOP>0)
             	{
-            	router1.init(make_pair(nedges,nesigns),stpair,n);
-            	router2.init(make_pair(nedges,nesigns),stpair,n);
+            	router1.init(make_pair(nedges,nesigns),stpair,n*W);
+            	router2.init(make_pair(nedges,nesigns),stpair,n*W);
             	}
            	else
             {
