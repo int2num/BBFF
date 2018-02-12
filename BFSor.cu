@@ -38,15 +38,20 @@ void BFSor::updatS(vector<vector<Sot>>&stpair)
 	for(int i=0;i<nodenum*ncount;i++)
 		d[i]=INF,p[i]=-1;
 	int nut=(IFHOP>0)?(WD+1):1;
-	for(int h=0;h<stpair.size();h++)
+	for(int k=0;k<L[1];k++)
 		{
-		for(int k=0;k<L[h+1];k++)
+		for(int j=0;j<stpair[0].size();j++)
 			{
-			for(int j=0;j<stpair[h].size();j++)
-				{
-				 d[count*nodenum+stpair[h][j].s*nut]=0;
-				 count++;
-				}
+			 d[count*nodenum+stpair[0][j].s]=0;
+			 count++;
+			}
+		}
+	for(int k=0;k<L[2];k++)
+		{
+		for(int j=0;j<stpair[1].size();j++)
+			{
+			 d[count*nodenum+stpair[1][j].s]=0;
+			 count++;
 			}
 		}
 	Size[0]=edges.size()*L[1]*S[0];
@@ -146,12 +151,12 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaMemcpy(p,dev_p,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	/*for(int i=0;i<8;i++)
+	for(int i=0;i<20;i++)
 	{
 		for(int j=0;j<nodenum;j++)
 			cout<<d[i*nodenum+j]<<" ";
 		cout<<endl;
-	}*/
+	}
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
@@ -167,17 +172,16 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 			{	
 				int s=stps[y-1][l].s;
 				vector<int>ters=stps[y-1][l].ters;
-				off+=l*nodenum;
 				for(int i=0;i<ters.size();i++)
 				{
 					int id=stps[y-1][l].mmpid[ters[i]];
 					int t=ters[i];
 					int ds=d[off+t];
+					cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" : "<<d[s+off]<<" "<<s+off<<endl;
 					if(ds>WD)continue;
 					int prn=off+t;
 					int hop=0;
 					vector<int>rout;
-					//cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" :"<<endl;
 					if(prn>=0)
 					{
 						while(prn!=s+off)
@@ -185,12 +189,14 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 							int eid=p[prn];
 							rout.push_back(eid);
 							prn=edges[eid].s+off;
+							//cout<<prn<<endl;
 							hop++;
 						}
 						Rout S(s,t,id,ds,k,rout);
 						result[y-1].push_back(S);
 					}					
 				}
+				off+=nodenum;
 			}
 		}
 	end=clock();

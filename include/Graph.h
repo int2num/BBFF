@@ -43,15 +43,15 @@ class Graph
 		{
         	vector<demand>ds1,ds2;
         	set<pair<int,int>>s1,s2;
-        	vector<vector<pair<int,int>>>sarray1(100,vector<pair<int,int>>());
-        	vector<vector<pair<int,int>>>sarray2(100,vector<pair<int,int>>());
+        	vector<vector<pair<int,int>>>sarray1(5,vector<pair<int,int>>());
+        	vector<vector<pair<int,int>>>sarray2(5,vector<pair<int,int>>());
         	cout<<"what f"<<endl;
         	int c1=0,c2=0;
-        	for(int i=0;i<100;i++)
+        	for(int i=0;i<5;i++)
         		{
-        		int s=rand()%50;
+        		int s=rand()%5;
         		int t=s;
-        		while(t==s)t=rand()%50;
+        		while(t==s)t=rand()%5;
         		if(s1.find(make_pair(s,t))==s1.end())
         			{
         				s1.insert(make_pair(s,t));
@@ -59,11 +59,11 @@ class Graph
         				sarray1[s].push_back(make_pair(t,c1-1));
         			}
         		}
-        	for(int i=0;i<100;i++)
+        	for(int i=0;i<5;i++)
         		{
-        		int s=rand()%50;
+        		int s=rand()%5;
         		int t=s;
-        		while(t==s)t=rand()%50;
+        		while(t==s)t=rand()%5;
         		if(s2.find(make_pair(s,t))==s2.end())
         			{
         				s2.insert(make_pair(s,t));
@@ -71,7 +71,6 @@ class Graph
         				sarray2[s].push_back(make_pair(t,c2-1));
         			}
         		}
-
         	vector<vector<Sot>>stpair(PC,vector<Sot>());
         	for(int i=0;i<sarray1.size();i++)
         		{
@@ -89,14 +88,9 @@ class Graph
         			S.push(sarray2[i][j].first,sarray2[i][j].second);
         		stpair[1].push_back(S);	
         		}
-        	
-        	router1.updatS(stpair);
-        	vector<vector<Rout>> result=router1.routalg(0,0,0);
-        	cout<<"returned!!!!"<<endl;
-        	
-        	
-        	
-        	
+        	router2.updatS(stpair);
+        	vector<vector<Rout>> result=router2.routalg(0,0,0);
+        	/*cout<<"returned!!!!"<<endl;
         	for(int i=0;i<result[0].size();i++)
         	{
         		int id=result[0][i].id;
@@ -162,11 +156,11 @@ class Graph
 					flag=rout.size();
 					break;
 				}
-				//if(flag==0)cout<<"ops!!!!"<<endl;
+				if(flag==0)cout<<"ops!!!!"<<endl;
 				cout<<flag<<endl;
-			}
+			}*/
 		}
-        virtual ~Graph(){};
+        virtual ~Graph(){ srand(1);};
     protected:
         void addedge(int _s,int _t,int _w,double _bw=500){
             neartable[_s].push_back(edges.size());
@@ -271,13 +265,13 @@ class Graph
             if(IFHOP>0)
             	{
             	router1.init(make_pair(nedges,nesigns),stpair,n);
-            	//router2.init(make_pair(nedges,nesigns),stpair,n);
+            	router2.init(make_pair(nedges,nesigns),stpair,n);
             	}
            	else
             {
            		cout<<"wgat f "<<n/W<<endl;
             	router1.init(make_pair(redges,esigns),stpair,n/W);
-            	//router2.init(make_pair(redges,esigns),stpair,n/W);
+            	router2.init(make_pair(redges,esigns),stpair,n/W);
             }
             return make_pair(redges,esigns);
         };

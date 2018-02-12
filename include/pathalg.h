@@ -13,15 +13,15 @@
 #include"BFS.h"
 #define ML 50
 #define BS 5
-#define WD 8
+#define WD 3
 #ifndef LY 
-	#define LY 100
+	#define LY 4
 #endif
 #define PC 2
-#define LY1 50
-#define LY2 50
+#define LY1 2
+#define LY2 2
 #define YE 100
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -194,9 +194,12 @@ class PBellmanor:public algbase{
 										prn=tt*W+i;
 									}
 								}
-								if(prn<0)continue;
+								if(prn<0){
+									cout<<"guale"<<endl;
+									continue;
+								}
 								int di=d[prn];
-								//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<di<<endl;
+								cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<prn<<" "<<di<<endl;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								if(prn>=0)
 								{
@@ -205,8 +208,11 @@ class PBellmanor:public algbase{
 										int eid=peg[prn];
 										rout.push_back(eid);
 										prn=edges[eid].s;
+										cout<<eid<<" "<<esigns[k][eid]<<" "<<edges[eid].s<<" "<<edges[eid].t<<endl;
+										cout<<prn<<" ";
 										hop++;
 									}
+									cout<<endl;
 								Rout S(s,ters[i],id,di,k,rout);
 								result[y-1].push_back(S);
 								}
@@ -454,16 +460,18 @@ class PBFSor:public algbase{
 							int d=dist[ters[i]];
 							if(pre[prn]<0&&d>WD)continue;
 							int id=stpairs[y-1][l].mmpid[ters[i]];
-							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
+							cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
 							if(prn>=0)
 							{
 								while(prn!=s)
 								{
 									int eid=pre[prn];
 									rout.push_back(eid);
+									cout<<eid<<" ";
 									prn=edges[eid].s;
 									hop++;
 								}
+							cout<<endl;
 							Rout S(s,ters[i],id,d,k,rout);
 							result[y-1].push_back(S);
 							}

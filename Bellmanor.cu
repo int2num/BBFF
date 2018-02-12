@@ -14,7 +14,7 @@ void Bellmanor::topsort()
 };
 void Bellmanor::updatE(vector<vector<int>>&tesigns)
 {
-	esigns=tesigns;
+	/*esigns=tesigns;
 	for(int k=0;k<LY;k++)
 		{
 			int off=k*nodenum*mm;
@@ -27,7 +27,7 @@ void Bellmanor::updatE(vector<vector<int>>&tesigns)
 						rudw[off+i*mm+j]=-1;
 			}
 		}
-	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);*/
 }
 void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 {
@@ -42,17 +42,30 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 	for(int i=0;i<nodenum*ncount;i++)
 		d[i]=INF,p[i]=-1;
 	int nut=(IFHOP>0)?(WD+1):1;
-	for(int h=0;h<stpair.size();h++)
+	for(int k=0;k<L[1];k++)
 		{
-		for(int k=0;k<L[h+1];k++)
+		for(int j=0;j<stpair[0].size();j++)
 			{
-			for(int j=0;j<stpair[h].size();j++)
-				{
-				 d[count*nodenum+stpair[h][j].s*NUT]=0;
-				 count++;
-				}
+			 d[count*nodenum+stpair[0][j].s*nut]=0;
+			 count++;
 			}
 		}
+	cout<<"pre cc "<<count<<endl;
+	for(int k=0;k<L[2];k++)
+		{
+		for(int j=0;j<stpair[1].size();j++)
+			{
+			 d[count*nodenum+stpair[1][j].s*nut]=0;
+			 count++;
+			}
+		}
+	for(int i=0;i<18;i++)
+	{
+		for(int j=0;j<nodenum;j++)
+			cout<<d[i*nodenum+j]<<" ";
+		cout<<endl;
+	}
+	cout<<"count is: "<<count<<" "<<ncount<<endl;
 	Size[0]=nodenum*L[1]*S[0];
 	Size[1]=nodenum*L[2]*S[1];
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
@@ -118,6 +131,17 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 					}
 		}
 		}
+	int roff=2*nodenum*mm+5*mm;
+	for(int k=0;k<mm;k++)
+	{
+		if(rudu[roff+k]<INT_MAX)
+			{
+			cout<<rudw[roff+k]<<" "<<rudu[roff+k]<<" ";
+			//cout<<ruw[5][k]<<" ";
+			}
+	}
+	cout<<endl;
+	cout<<"wo it is: "<<esigns[2][0]<<endl;
 	int count=0;
 	for(int k=0;k<LY;k++)
 		for(int i=0;i<nodenum;i++)
@@ -160,10 +184,10 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>=size)return;
-	int lyy=i/(ye*N)+leveloff;
+	int lyy=i/(ye*N);
 	int yee=(i%(ye*N))/N;
-	int off=lyy*N*ye+yee*N;
-	int roff=(i%N+lyy*N)*mm;
+	int off=lyy*N*ye+yee*N+sizeoff;
+	int roff=(i%N+(lyy+leveloff)*N)*mm;
 	i+=sizeoff;
 	int dm=d[i];
 	int mark=-1;
@@ -172,6 +196,7 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 		{
 			int node=rudu[roff+k]+off;
 			if(rudw[roff+k]<0)continue;
+			//if(rudw[roff+k]==4)
 			if(dm>d[node]+rudw[roff+k])
 				dm=d[node]+rudw[roff+k];
 		}
@@ -188,33 +213,57 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamCreate(&stream0);
 	cudaStream_t stream1;
 	cudaStreamCreate(&stream1);
+	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	for(int i=0;i<18;i++)
+	{
+		for(int j=0;j<nodenum;j++)
+			cout<<d[i*nodenum+j]<<" ";
+		cout<<endl;
+	}
 	for(int i=0;i<WD+1;i++)
 	{
-		bellmandu<<<Size[0]/512+1,512,0,stream0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
-		bellmandu<<<Size[1]/512+1,512,0,stream1>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
+		bellmandu<<<Size[0]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
+		bellmandu<<<Size[1]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
 	}
-	cudaStreamSynchronize(stream1);
-	cudaStreamSynchronize(stream0);
+	//cudaStreamSynchronize(stream1);
+	//cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	cudaMemcpy(rudw,dev_rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	cout<<"ddddd"<<endl;
+	for(int i=0;i<18;i++)
+	{
+		for(int j=0;j<nodenum;j++)
+			cout<<d[i*nodenum+j]<<" ";
+		cout<<endl;
+	}
+	int roff=2*nodenum*mm+5*mm;
+	for(int k=0;k<mm;k++)
+	{
+		if(rudu[roff+k]<INT_MAX)
+			{
+			cout<<rudw[roff+k]<<" "<<rudu[roff+k]<<" ";
+			//cout<<ruw[5][k]<<" ";
+			}
+	}
+	cout<<endl;
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
 	//cout<<"offer is "<<offer<<endl;
 	cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
 	//cout<<"size of "<<esigns.size()<<" "<<endl;
+
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
+	int count=0;
 	for(int y=1;y<PC+1;y++)
 		for(int k=LL[y-1];k<LL[y];k++)
-		{
-			int off=0;
-			if(y==1)off=k*nodenum*stps[0].size();
-			if(y==2)off=offer+(k-LL[1])*nodenum*stps[1].size();	
+		{	
 			for(int l=0;l<stps[y-1].size();l++)
 			{	
+				int offf=count*nodenum;
 				int s=stps[y-1][l].s*NUT;
 				vector<int>ters=stps[y-1][l].ters;
-				off+=l*nodenum;
 				for(int i=0;i<ters.size();i++)
 				{
 					int id=stps[y-1][l].mmpid[ters[i]];
@@ -225,20 +274,20 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 					int prn=-1;
 					for(int i=1;i<W;i++)
 						{
-						if(d[off+tt*W+i]<min)
+						if(d[offf+tt*W+i]<min)
 							{	
-								min=d[off+tt*W+i];
-								prn=off+tt*W+i;
+								min=d[offf+tt*W+i];
+								prn=offf+tt*W+i;
 							}
 						}
-					int node=prn-off;
+					int node=prn-offf;
 					if(prn<0)continue;
-					//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<min<<" :"<<endl;
+					//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<min<<" : "<<node<<" "<<d[s+offf]<<endl;
 					while(node!=s)
 						{
 							for(int i=0;i<rus[node].size();i++)
 								{
-									if(esigns[k][ruw[node][i]]+d[off+rus[node][i]]==d[off+node])
+									if(esigns[k][ruw[node][i]]>0&&esigns[k][ruw[node][i]]+d[offf+rus[node][i]]==d[offf+node])
 									{
 										rout.push_back(ruw[node][i]);
 										node=rus[node][i];
@@ -249,6 +298,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 					Rout S(s/NUT,tt,id,min,k,rout);
 					result[y-1].push_back(S);
 				}
+				count++;
 			}
 		}
 	end=clock();
