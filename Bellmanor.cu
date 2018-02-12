@@ -14,7 +14,7 @@ void Bellmanor::topsort()
 };
 void Bellmanor::updatE(vector<vector<int>>&tesigns)
 {
-	/*esigns=tesigns;
+	esigns=tesigns;
 	for(int k=0;k<LY;k++)
 		{
 			int off=k*nodenum*mm;
@@ -27,7 +27,7 @@ void Bellmanor::updatE(vector<vector<int>>&tesigns)
 						rudw[off+i*mm+j]=-1;
 			}
 		}
-	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);*/
+	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 }
 void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 {
@@ -248,10 +248,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cout<<endl;
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
-	//cout<<"offer is "<<offer<<endl;
 	cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
-	//cout<<"size of "<<esigns.size()<<" "<<endl;
-
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
@@ -282,7 +279,6 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 						}
 					int node=prn-offf;
 					if(prn<0)continue;
-					//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<min<<" : "<<node<<" "<<d[s+offf]<<endl;
 					while(node!=s)
 						{
 							for(int i=0;i<rus[node].size();i++)
@@ -303,10 +299,10 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 		}
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
-	cudaFree(dev_te);
-	cudaFree(dev_st);
-	cudaFree(dev_d);
-	cudaFree(dev_w);
+	//cudaFree(dev_te);
+	//cudaFree(dev_st);
+	//cudaFree(dev_d);
+	//cudaFree(dev_w);
 	return result;
 };
 

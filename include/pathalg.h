@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -143,6 +143,9 @@ class PBellmanor:public algbase{
 		vector<vector<int>>esigns;
 		
 		PBellmanor():L(3,0){};
+        virtual void updatE(vector<vector<int>>&_esigns){
+        	esigns=_esigns;
+        };
         virtual void updatS(vector<vector<Sot>>&stpair){
         	stpairs=stpair;
         	L[0]=0;
@@ -215,11 +218,10 @@ class PBellmanor:public algbase{
 									}
 								}
 								if(prn<0){
-									cout<<"guale"<<endl;
 									continue;
 								}
 								int di=d[prn];
-								cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<prn<<" "<<di<<endl;
+								//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<prn<<" "<<di<<endl;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								if(prn>=0)
 								{
@@ -228,11 +230,9 @@ class PBellmanor:public algbase{
 										int eid=peg[prn];
 										rout.push_back(eid);
 										prn=edges[eid].s;
-										cout<<eid<<" "<<esigns[k][eid]<<" "<<edges[eid].s<<" "<<edges[eid].t<<endl;
-										cout<<prn<<" ";
 										hop++;
 									}
-									cout<<endl;
+									//cout<<endl;
 								Rout S(s,ters[i],id,di,k,rout);
 								result[y-1].push_back(S);
 								}
@@ -244,6 +244,43 @@ class PBellmanor:public algbase{
         		cout<<"good sofor"<<endl;
         		return result;
 	 	}
+        vector<int> tunel(int s,int t,int k)
+		{
+        	vector<int>d(nodenum,INT_MAX);
+        	vector<int>peg(nodenum,-1);
+        	set<int>ts;
+        	s=s*NUT;
+        	ts.insert(t);
+        	int size=1;
+			dijkstra(s,t,d,peg,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
+			vector<int>rout;
+			int hop=0;
+			int tt=t;
+			int min=INF;
+			int prn=-1;
+			for(int i=1;i<W;i++)
+			{
+				if(d[tt*W+i]<min)
+				{	
+					min=d[tt*W+i];
+					prn=tt*W+i;
+				}
+			}
+			if(prn<0||min>10000){
+				return rout;
+			}
+			if(prn>=0)
+			{
+				while(prn!=s)
+				{
+					int eid=peg[prn];
+					rout.push_back(eid);
+					prn=edges[eid].s;
+					hop++;
+				}
+			}
+			return rout;
+		}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
         {
         	if(a.second<b.second)
@@ -489,11 +526,9 @@ class PBFSor:public algbase{
 								{
 									int eid=pre[prn];
 									rout.push_back(eid);
-									//cout<<eid<<" ";
 									prn=edges[eid].s;
 									hop++;
 								}
-							//cout<<endl;
 							Rout S(s,ters[i],id,d,k,rout);
 							result[y-1].push_back(S);
 							}
@@ -527,9 +562,11 @@ class PBFSor:public algbase{
 				{
 					int eid=pre[prn];
 					rout.push_back(eid);
-					esigns[k][eid]*=-1;
+					//esigns[k][eid]*=-1;
+					//cout<<eid<<" ";
 					prn=edges[eid].s;
 				}
+				//cout<<endl;
 			}
 			return rout;
 	 	}
