@@ -38,58 +38,62 @@ class Graph
         {
         	return make_pair(0,0);
         }
-        
+        vector<vector<Sot>>Getspair(vector<vector<demand>>&ds)
+		{
+        	vector<vector<vector<pair<int,int>>>>sarray(PC,vector<vector<pair<int,int>>>(n,vector<pair<int,int>>()));
+        	for(int k=0;k<PC;k++)
+        	{
+        		for(int i=0;i<ds[k].size();i++)
+        		{
+        			demand dd=ds[k][i];
+        			if(dd.mark==1)continue;
+        			sarray[k][dd.s].push_back(make_pair(dd.t,dd.id));
+        		}
+        		       
+        	}
+        	vector<vector<Sot>>stpair(PC,vector<Sot>());
+        	for(int k=0;k<PC;k++)
+        	{
+        		for(int i=0;i<sarray[k].size();i++)
+        		{
+        			if(sarray[k][i].size()==0)continue;
+        			Sot S(i);
+        			for(int j=0;j<sarray[k][i].size();j++)
+        				S.push(sarray[k][i][j].first,sarray[k][i][j].second);
+        			stpair[k].push_back(S);
+        		}	
+        	}
+        	return stpair;
+		}
         void routalg(int s,int t,int bw)
 		{
-        	vector<demand>ds1,ds2;
-        	set<pair<int,int>>s1,s2;
-        	vector<vector<pair<int,int>>>sarray1(5,vector<pair<int,int>>());
-        	vector<vector<pair<int,int>>>sarray2(5,vector<pair<int,int>>());
-        	cout<<"what f"<<endl;
+        	vector<vector<demand>>ds(2,vector<demand>());
         	int c1=0,c2=0;
-        	for(int i=0;i<5;i++)
+        	for(int k=0;k<PC;k++)
+        	{
+        		set<pair<int,int>>se;
+        		for(int i=0;i<5;i++)
         		{
         		int s=rand()%5;
         		int t=s;
         		while(t==s)t=rand()%5;
-        		if(s1.find(make_pair(s,t))==s1.end())
+        		if(se.find(make_pair(s,t))==se.end())
         			{
-        				s1.insert(make_pair(s,t));
-        				ds1.push_back(demand(s,t,c1++));
-        				sarray1[s].push_back(make_pair(t,c1-1));
+        				se.insert(make_pair(s,t));
+        				cout<<s<<" "<<t<<endl;
+        				ds[k].push_back(demand(s,t,c1++));
         			}
         		}
-        	for(int i=0;i<5;i++)
-        		{
-        		int s=rand()%5;
-        		int t=s;
-        		while(t==s)t=rand()%5;
-        		if(s2.find(make_pair(s,t))==s2.end())
-        			{
-        				s2.insert(make_pair(s,t));
-        				ds2.push_back(demand(s,t,c2++));
-        				sarray2[s].push_back(make_pair(t,c2-1));
-        			}
-        		}
-        	vector<vector<Sot>>stpair(PC,vector<Sot>());
-        	for(int i=0;i<sarray1.size();i++)
-        		{
-        		if(sarray1[i].size()==0)continue;
-        		Sot S(i);
-        		for(int j=0;j<sarray1[i].size();j++)
-        			S.push(sarray1[i][j].first,sarray1[i][j].second);
-        		stpair[0].push_back(S);	
-        		}	
-        	for(int i=0;i<sarray2.size();i++)
-        		{
-        		if(sarray2[i].size()==0)continue;
-        		Sot S(i);
-        		for(int j=0;j<sarray2[i].size();j++)
-        			S.push(sarray2[i][j].first,sarray2[i][j].second);
-        		stpair[1].push_back(S);	
-        		}
-        	router2.updatS(stpair);
-        	vector<vector<Rout>> result=router2.routalg(0,0,0);
+        	}
+        	cout<<endl;
+        	vector<vector<Sot>>stpair=Getspair(ds);
+        	for(int k=0;k<PC;k++)
+        	{
+        		for(int j=0;j<stpair[k].size();j++)
+        			cout<<stpair[k][j].s<<" "<<stpair[k][j].ts.size()<<endl;
+        	}
+        	router1.updatS(stpair);
+        	vector<vector<Rout>> result=router1.routalg(0,0,0);
         	/*cout<<"returned!!!!"<<endl;
         	for(int i=0;i<result[0].size();i++)
         	{
@@ -101,15 +105,14 @@ class Graph
 				int id=result[1][i].id;
 				ds2[id].backroute.push(result[1][i]);
 			}
+        	//que;
         	priority_queue<demand,vector<demand>,compd>dsque1,dsque2;
         	for(int i=0;i<ds1.size();i++)
         		dsque1.push(ds1[i]);
         	
         	cout<<"size of ds2 is"<<ds2.size()<<endl;
         	for(int i=0;i<ds2.size();i++)
-        		dsque2.push(ds2[i]);
-        	cout<<"dsque2: "<<dsque2.empty()<<endl;
-
+        		 dsque1.push(ds2[i]);
         	while(!dsque1.empty())
         	{
         		demand nde=dsque1.top();
@@ -121,7 +124,6 @@ class Graph
         			vector<int>rout=nde.backroute.top().routes;
         			int k=nde.backroute.top().ly;
         			nde.backroute.pop();
-        			flag++;
         			for(int i=0;i<rout.size();i++)
         				if(esignes[k][i]<0)
         					continue;
@@ -130,10 +132,9 @@ class Graph
         			flag=rout.size();
         			break;
         		}
-        		//if(flag==0)cout<<"ops!!!!"<<endl;
+				if(flag==0)cout<<"ops!!!!"<<endl;
         		cout<<flag<<endl;
         	}
-        	
         	cout<<"level of 2"<<endl;
         	cout<<"dsque2: "<<dsque2.empty()<<endl;
         	while(!dsque2.empty())
@@ -147,7 +148,6 @@ class Graph
 					vector<int>rout=nde.backroute.top().routes;
 					int k=nde.backroute.top().ly;
 					nde.backroute.pop();
-					flag++;
 					for(int i=0;i<rout.size();i++)
 						if(esignes[k][i]<0)
 							continue;
@@ -237,26 +237,29 @@ class Graph
             int W=WD+1;
             vector<vector<int>>nesigns(LY,vector<int>());
             vector<edge>nedges;
-            n=n*W;
-            for(int i=0;i<redges.size();i++)
+            if(IFHOP>0)
             {
-            	int s=redges[i].s;
-            	int t=redges[i].t;
-            	for(int j=0;j<W-1;j++)
-            	{
-            		int ss=s*W+j;
-            		int tt=t*W+j+1;
-            		nedges.push_back(edge(ss,tt,1));
-            	}
-            }
-            for(int k=0;k<LY;k++)
+				n=n*W;
 				for(int i=0;i<redges.size();i++)
 				{
-					for(int j=0;j<W;j++)
+					int s=redges[i].s;
+					int t=redges[i].t;
+					for(int j=0;j<W-1;j++)
 					{
-						nesigns[k].push_back(esigns[k][i]);
+						int ss=s*W+j;
+						int tt=t*W+j+1;
+						nedges.push_back(edge(ss,tt,1));
 					}
 				}
+				for(int k=0;k<LY;k++)
+					for(int i=0;i<redges.size();i++)
+					{
+						for(int j=0;j<W;j++)
+						{
+							nesigns[k].push_back(esigns[k][i]);
+						}
+					}
+            }
             //asdasdasdasd.
             vector<pair<int,int>> stpair;
             stpair.push_back(make_pair(1,5));
@@ -270,8 +273,8 @@ class Graph
            	else
             {
            		cout<<"wgat f "<<n/W<<endl;
-            	router1.init(make_pair(redges,esigns),stpair,n/W);
-            	router2.init(make_pair(redges,esigns),stpair,n/W);
+            	router1.init(make_pair(redges,esigns),stpair,n);
+            	router2.init(make_pair(redges,esigns),stpair,n);
             }
             return make_pair(redges,esigns);
         };

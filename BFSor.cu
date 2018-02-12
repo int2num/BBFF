@@ -151,12 +151,6 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaMemcpy(p,dev_p,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	for(int i=0;i<20;i++)
-	{
-		for(int j=0;j<nodenum;j++)
-			cout<<d[i*nodenum+j]<<" ";
-		cout<<endl;
-	}
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
@@ -177,8 +171,8 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 					int id=stps[y-1][l].mmpid[ters[i]];
 					int t=ters[i];
 					int ds=d[off+t];
-					cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" : "<<d[s+off]<<" "<<s+off<<endl;
 					if(ds>WD)continue;
+					//cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" : "<<d[s+off]<<" "<<s+off<<endl;
 					int prn=off+t;
 					int hop=0;
 					vector<int>rout;

@@ -21,7 +21,7 @@
 #define LY1 2
 #define LY2 2
 #define YE 100
-#define IFHOP 1
+#define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -65,12 +65,17 @@ struct demand{
 	int id;
 	int value;
 	int s,t;
-	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id){};
+	int mark;
+	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id),mark(0){};
 };
 class compd{
 	public:
 	bool operator()(demand &d1,demand& d2)
 	{
+		if(d1.backroute.empty())
+			return true;
+		if(d2.backroute.empty())
+			return false;
 		if(d1.backroute.top().di>d2.backroute.top().di)
 			return true;
 		return false;
@@ -467,11 +472,11 @@ class PBFSor:public algbase{
 								{
 									int eid=pre[prn];
 									rout.push_back(eid);
-									cout<<eid<<" ";
+									//cout<<eid<<" ";
 									prn=edges[eid].s;
 									hop++;
 								}
-							cout<<endl;
+							//cout<<endl;
 							Rout S(s,ters[i],id,d,k,rout);
 							result[y-1].push_back(S);
 							}
