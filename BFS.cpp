@@ -1,10 +1,16 @@
 #include"BFS.h"
+#include<iostream>
+struct ccmp{  
+    bool operator()(pair<int,int> a,pair<int,int> b){  
+        return a.second>b.second;    
+    }  
+}; 
 int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size,int WD)
 {
 	int vflag=1;
 	int tnode=-1;
 	int tv=-1;
-	priority_queue<pair<int, int>,vector<pair<int,int>>,std::less<std::pair<int, int>>>que;
+	priority_queue<pair<int,int>,vector<pair<int,int>>,ccmp>que;
 	que.push(make_pair(s,0));
 	dist[s]=0;
 	while(!que.empty()&&vflag)

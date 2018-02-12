@@ -13,13 +13,13 @@
 #include"BFS.h"
 #define ML 50
 #define BS 5
-#define WD 3
+#define WD 8
 #ifndef LY 
-	#define LY 100
+	#define LY 8
 #endif
 #define PC 2
-#define LY1 50
-#define LY2 50
+#define LY1 2
+#define LY2 6
 #define YE 100
 #define IFHOP 0
 #define inf INT_MAX/2
@@ -389,7 +389,8 @@ class PBFSor:public algbase{
         }
         virtual bool cutcake(int index){
         }
-        virtual void updatE(vector<vector<int>>&esigns){
+        virtual void updatE(vector<vector<int>>&_esigns){
+        	esigns=_esigns;
         	
         };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
@@ -463,9 +464,11 @@ class PBFSor:public algbase{
 							int hop=0;
 							int prn=ters[i];
 							int d=dist[ters[i]];
-							if(pre[prn]<0&&d>WD)continue;
-							int id=stpairs[y-1][l].mmpid[ters[i]];
 							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
+							if(pre[prn]<0&&d>WD){
+								continue;
+							}
+							int id=stpairs[y-1][l].mmpid[ters[i]];
 							if(prn>=0)
 							{
 								while(prn!=s)

@@ -64,7 +64,7 @@ class Graph
         	}
         	return stpair;
 		}
-        vector<vector<demand>> 	Gendemand(vector<int>&tasknum)
+        vector<vector<demand>>Gendemand(vector<int>&tasknum)
 		{
         	vector<vector<demand>>ds(PC,vector<demand>());
 			int c1=0;
@@ -89,8 +89,9 @@ class Graph
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
 		{
         	vector<vector<Sot>>stpair=Getspair(ds);
-			router2.updatS(stpair);
-			vector<vector<Rout>> result=router2.routalg(0,0,0);
+			router1.updatS(stpair);
+			router1.updatE(esignes);
+			vector<vector<Rout>> result=router1.routalg(0,0,0);
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<result[k].size();i++)
 				{
@@ -108,6 +109,7 @@ class Graph
 					demand nde=dsque[k].top();
 					dsque[k].pop();
 					int flag=0;
+					
 					while(!nde.backroute.empty())
 					{
 						vector<int>rout=nde.backroute.top().routes;
@@ -116,8 +118,8 @@ class Graph
 						for(int i=0;i<rout.size();i++)
 							if(esignes[k][i]<0)
 								{
-								flag=-1;
-								continue;
+									flag=-1;
+									continue;
 								}
 						for(int i=0;i<rout.size();i++)
 							esignes[k][i]*=-1;
@@ -126,9 +128,11 @@ class Graph
 						break;
 					}
 					if(flag==0){
+						cout<<"blocking"<<endl;
 						block.push_back(nde);
 					}
 					if(flag<0){
+						cout<<"remaining"<<endl;
 						remain[k].push_back(nde);
 					}
 					//scout<<flag<<endl;
@@ -138,14 +142,16 @@ class Graph
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	tasknum.push_back(200);
-        	tasknum.push_back(200);
+        	tasknum.push_back(2);
+        	tasknum.push_back(6);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
 			time_t start=clock();
-			while(ds[0].size()>0||ds[1].size()>0)
-				ds=greedy(ds,addin,block);
+			//while(ds[0].size()>0||ds[1].size()>0)
+			ds=greedy(ds,addin,block);
+			cout<<"has add in:"<<endl;
+			cout<<addin.size()<<endl;
 			time_t end=clock();
 			cout<<"time is"<<end-start<<endl;
 
@@ -217,13 +223,12 @@ class Graph
             	{
             		
             		int ran=rand()%100;
-            		if(ran<50)
-            			esigns[i].push_back(-1);
-            		else
-            			esigns[i].push_back(rand()%10+1);
+            		//if(ran<20)
+            			//esigns[i].push_back(-1);
+            		//else
+            		esigns[i].push_back(rand()%10+1);
             	}
             esignes=esigns;
-            //assdsasd.
             int W=WD+1;
             vector<vector<int>>nesigns(LY,vector<int>());
             vector<edge>nedges;
