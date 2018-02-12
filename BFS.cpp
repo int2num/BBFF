@@ -1,7 +1,7 @@
 #include"BFS.h"
 #include<iostream>
 struct ccmp{  
-    bool operator()(pair<int,int> a,pair<int,int> b){  
+    bool operator()(pair<int,int>& a,pair<int,int>& b){  
         return a.second>b.second;    
     }  
 }; 

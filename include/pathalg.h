@@ -15,17 +15,25 @@
 #define BS 5
 #define WD 8
 #ifndef LY 
-	#define LY 8
+	#define LY 80
 #endif
 #define PC 2
-#define LY1 2
-#define LY2 6
+#define LY1 20
+#define LY2 60
 #define YE 100
 #define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
 using namespace std;
+struct event{
+	int fuhao;
+	int time;
+	vector<int>rout;
+	int level;
+	event(int fuh,int tt,int _rout=vector<int>(),int level=0):fuhao(fuh),time(tt),rout(_rout){}
+	
+}
 struct Rout{
 	int s,t;
 	int id;
@@ -66,6 +74,7 @@ struct demand{
 	int value;
 	int s,t;
 	int mark;
+	vector<int>rout;
 	demand(int _s,int _t,int _id):s(_s),t(_t),id(_id),mark(0){};
 };
 class compd{
@@ -81,6 +90,11 @@ class compd{
 		return false;
 	};
 };
+struct cevent{  
+    bool operator()(event&a,event&b){  
+        return a.time>b.time;    
+    }  
+}; 
 class algbase {
     protected:
         vector<int> getrout(int &s, int &t, vector<edge> &edges, vector<int> &pre) {
@@ -100,6 +114,7 @@ class algbase {
 	 	virtual void updatS(vector<vector<Sot>>&stpair){};	 	 
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum)=0;
 	 	virtual vector<vector<Rout>> routalg(int s,int t,int bw)=0;
+	 	virtual vector<int> tunel(int s,int t,int k){}
 	 	virtual pair<int,int> prepush(int s,int t,int bw)=0;
 };
 class PBellmanor:public algbase{
@@ -391,7 +406,6 @@ class PBFSor:public algbase{
         }
         virtual void updatE(vector<vector<int>>&_esigns){
         	esigns=_esigns;
-        	
         };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	maxbw=500;
@@ -490,6 +504,34 @@ class PBFSor:public algbase{
 			cout<<"cpu time is: "<<end-start<<endl;
 			cout<<"good sofor"<<endl;
 			return result;
+	 	}
+	 	vector<int> tunel(int s,int t,int k){
+	 		int tnode=-1;
+			int tv=WD+1;
+			vector<int>dist(nodenum,INT_MAX);
+			vector<int>pre(nodenum,-1);
+			set<int> ts;
+			ts.insert(t);
+			int size=1;
+			BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
+			vector<int>rout;
+			int hop=0;
+			int prn=t;
+			int d=dist[t];
+			if(pre[prn]<0&&d>WD){
+				return rout;
+			}
+			if(prn>=0)
+			{
+				while(prn!=s)
+				{
+					int eid=pre[prn];
+					rout.push_back(eid);
+					esigns[k][eid]*=-1;
+					prn=edges[eid].s;
+				}
+			}
+			return rout;
 	 	}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
         {
