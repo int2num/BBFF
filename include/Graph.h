@@ -55,6 +55,8 @@ class Graph
         vector<int>blocks;
         int busy;
         int reles;
+        double time_count;
+        vector<double>times;
         void run()
         {
         	busy=0;
@@ -103,6 +105,8 @@ class Graph
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
         	cout<<endl;
+        	for(int i=0;i<times.size();i++)
+        	    cout<<times[i]<<" ";
         }
         vector<vector<Sot>>Getspair(vector<vector<demand>>&ds)
 		{
@@ -238,6 +242,7 @@ class Graph
 				ds=greedy(ds,addin,block);
 			cout<<"serial over !"<<endl;
 			time_t end=clock();
+			times.push_back(end-start);
 			int count=0;
 			for(int i=0;i<addin.size();i++)
 				count+=addin[i].value;
