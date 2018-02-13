@@ -77,8 +77,8 @@ public:
 };
 struct demand{
 	priority_queue<Rout,vector<Rout>,comp> backroute;
-	//priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
-	vector<pair<int,int>>routid;
+	priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
+	//vector<pair<int,int>>routid;
 	int id;
 	int value;
 	int s,t;
@@ -443,6 +443,7 @@ class PBFSor:public algbase{
 		//add
 		vector<vector<vector<int>>>neieid;
 		vector<vector<int>>esigns;
+		vector<vector<int>>tesigns;
 		int *stid,*dev_stid;
 		PBFSor():L(3,0){};
         void topsort()
@@ -571,9 +572,16 @@ class PBFSor:public algbase{
 				{
 					int eid=pre[prn];
 					rout.push_back(eid);
-					//esigns[k][eid]*=-1;
-					//cout<<eid<<" ";
 					prn=edges[eid].s;
+					if(IFHOP<1)
+						esigns[k][eid]*=-1;
+					if(IFHOP==1)
+					{
+						eid=(eid/WD)*WD;
+						for(int j=0;j<WD;j++)
+							esigns[k][eid+j]*=-1;
+					}
+					//cout<<eid<<" ";
 				}
 				//cout<<endl;
 			}
