@@ -6,7 +6,7 @@
 #include<set>
 #include<queue>
 #define LAMBDA 0.5
-#define ADDNUM 100
+#define ADDNUM 5
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -156,10 +156,12 @@ class Graph
 			}
 			return ds;
 		}
-        vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
+        vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double &timecount)
 		{
+        	time_t starty=clock();
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
+        	cout<<"get pair: "<<startu-starty<<endl;
 			router2.updatS(stpair);
 			router2.updatE(esignes);
 			time_t endu=clock();
@@ -241,6 +243,7 @@ class Graph
 				}
 			time_t enda=clock();
 			cout<<"alg time: "<<enda-mid<<endl;
+			timecount+=(enda-starty);
 			return remain;
 		}
         void routalg(int s,int t,int bw)
@@ -252,13 +255,11 @@ class Graph
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
-			time_t start=clock();
-			//serialadd(ds,addin,block);
+			double timecount=0;
+			//serialadd(ds,addin,block,timecount);
 			while(ds[0].size()>0||ds[1].size()>0)
-				ds=greedy(ds,addin,block);
-			cout<<"serial over !"<<endl;
-			time_t end=clock();
-			times.push_back(end-start);
+				ds=greedy(ds,addin,block,timecount);
+			times.push_back(timecount);
 			int count=0;
 			for(int i=0;i<addin.size();i++)
 				count+=addin[i].value;
@@ -276,8 +277,9 @@ class Graph
 			//cout<<"add in is "<<addin.size()<<endl;
 			//cout<<"time is"<<end-start<<endl;
 		}
-        void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
+        void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
         {
+        	time_t start=clock();
 			router1.updatE(esignes);
         	vector<int>L(3,0);
         	L[0]=0;L[1]=LY1;L[2]=LY2+LY1;
@@ -320,6 +322,8 @@ class Graph
         				if(flag==0)block.push_back(ds[y-1][i]);
         			}
         		}
+        	time_t end=clock();
+        	timecount+=(end-start);
         	
         }
         virtual ~Graph(){ 
