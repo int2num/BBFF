@@ -68,8 +68,16 @@ class comp{
 		return false;
 	};
 };
+class paircomp{
+public:
+	bool operator()(pair<int,int>&a,pair<int,int>&b)
+	{
+		return a.second>b.second;
+	}
+};
 struct demand{
 	priority_queue<Rout,vector<Rout>,comp> backroute;
+	priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
 	int id;
 	int value;
 	int s,t;

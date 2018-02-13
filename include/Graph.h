@@ -173,30 +173,39 @@ class Graph
 				for(int i=0;i<result[k].size();i++)
 				{
 					int id=result[k][i].id;
-					ds[k][id].backroute.push(result[k][i]);
+					int vv=result[k][i].di;
+					ds[k][id].routid.push(make_pair(i,vv));
 				}
-			vector<priority_queue<demand,vector<demand>,compd>>dsque(2,priority_queue<demand,vector<demand>,compd>());
+			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
 			vector<vector<demand>>remain(PC,vector<demand>());
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<ds[k].size();i++)
-					dsque[k].push(ds[k][i]);
+					{
+						if(!ds[k][i].routid.empty())
+							{
+							int vv=ds[k][i].routid.top().second;
+							dsque[k].push(make_pair(i,vv));
+							}
+					}
 			time_t mid=clock();
 			cout<<"build queue: "<<mid-starta<<endl;
 			for(int k=0;k<PC;k++)
 				while(!dsque[k].empty())
 				{
-					demand nde=dsque[k].top();
+					pair<int,int> pp=dsque[k].top();
+					demand nde=ds[k][pp.first];
 					dsque[k].pop();
 					int flag=0;	
-					while(!nde.backroute.empty())
+					while(!nde.routid.empty())
 					{
-						int ly=nde.backroute.top().ly;
-						int v=nde.backroute.top().di;
-						vector<int>rout=nde.backroute.top().routes;
-						int k=nde.backroute.top().ly;
-						nde.backroute.pop();
+						int id=nde.routid.top().first;
+						nde.routid.pop();
+						Rout RR=result[k][id];
+						int ly=RR.ly;
+						int v=RR.di;
+						vector<int>rout=RR.routes;
 						for(int i=0;i<rout.size();i++)
-							if(esignes[k][rout[i]]<0)
+							if(esignes[ly][rout[i]]<0)
 								{
 									flag=-1;
 									continue;
@@ -205,13 +214,13 @@ class Graph
 							{
 								int eid=rout[i];
 								if(IFHOP<1)
-									esignes[k][eid]*=-1;
+									esignes[ly][eid]*=-1;
 								if(IFHOP==1)
 								{
 									eid=(eid/WD)*WD;
 									for(int j=0;j<WD;j++)
 										{
-											esignes[k][eid+j]*=-1;
+											esignes[ly][eid+j]*=-1;
 											busy++;
 										}
 								}
