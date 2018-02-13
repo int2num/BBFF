@@ -52,6 +52,7 @@ class Graph
         int current;
         priority_queue<event,vector<event>,cevent>timeque;
         vector<double>average;
+        vector<double>averhops;
         vector<int>blocks;
         int busy;
         int reles;
@@ -102,6 +103,9 @@ class Graph
         	for(int i=0;i<average.size();i++)
         		cout<<average[i]<<" ";
         	cout<<endl;
+        	for(int i=0;i<average.size();i++)
+                cout<<averhops[i]<<" ";
+            cout<<endl;
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
         	cout<<endl;
@@ -267,8 +271,12 @@ class Graph
 				ds=greedy(ds,addin,block,timecount);
 			times.push_back(timecount);
 			int count=0;
+			int hops=0;
 			for(int i=0;i<addin.size();i++)
-				count+=addin[i].value;
+				{
+					count+=addin[i].value;
+					hops+=addin[i].rout.size();
+				}
 			for(int i=0;i<addin.size();i++)
 			{
 				int serv=0;//randomExponential(LAMBDA);
@@ -278,6 +286,7 @@ class Graph
 			}
 			//cout<<"what f"<<endl;
 			average.push_back((double)count/(double)addin.size());
+			averhops.push_back((double)hops/(double)addin.size());
 			blocks.push_back(block.size());
 			//cout<<"add in rout cost is "<<count<<endl;
 			//cout<<"add in is "<<addin.size()<<endl;
