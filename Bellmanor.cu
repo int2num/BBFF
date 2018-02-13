@@ -39,8 +39,8 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 	stps=stpair;
 	int count=0;
 	ncount=L[1]*S[0]+L[2]*S[1];
-	for(int i=0;i<nodenum*ncount;i++)
-		d[i]=INF,p[i]=-1;
+	memset(d,1,ncount*nodenum*sizeof(int));
+	memset(p,-1,ncount*nodenum*sizeof(int));
 	for(int k=0;k<L[1];k++)
 		{
 		for(int j=0;j<stpair[0].size();j++)
@@ -49,7 +49,6 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 			 count++;
 			}
 		}
-	cout<<"pre cc "<<count<<endl;
 	for(int k=0;k<L[2];k++)
 		{
 		for(int j=0;j<stpair[1].size();j++)
@@ -58,7 +57,6 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 			 count++;
 			}
 		}
-	cout<<"count is: "<<count<<" "<<ncount<<endl;
 	Size[0]=nodenum*L[1]*S[0];
 	Size[1]=nodenum*L[2]*S[1];
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
@@ -222,7 +220,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 					vector<int>rout;
 					int hop=0;
 					int tt=ters[i];
-					int min=INF;
+					int min=50000;
 					int prn=-1;
 					for(int i=1;i<W;i++)
 						{

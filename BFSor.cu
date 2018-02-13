@@ -37,11 +37,8 @@ void BFSor::updatS(vector<vector<Sot>>&stpair)
 	stps=stpair;
 	int count=0;
 	ncount=L[1]*S[0]+L[2]*S[1];
-	for(int i=0;i<nodenum*ncount;i++)
-		d[i]=INF,p[i]=-1;
-	int nut=(IFHOP>0)?(WD+1):1;
-	for(int i=0;i<nodenum*LY*YE;i++)
-			d[i]=WD+1,p[i]=-1;
+	memset(d,1,ncount*nodenum*sizeof(int));
+	memset(p,-1,ncount*nodenum*sizeof(int));
 	for(int k=0;k<L[1];k++)
 		{
 		for(int j=0;j<stpair[0].size();j++)
