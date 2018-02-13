@@ -20,7 +20,7 @@
 #define PC 2
 #define LY1 20
 #define LY2 60
-#define YE 500
+#define YE 100
 #define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
@@ -77,8 +77,8 @@ public:
 };
 struct demand{
 	priority_queue<Rout,vector<Rout>,comp> backroute;
-	priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
-	//vector<pair<int,int>>routid;
+	//priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
+	vector<pair<int,int>>routid;
 	int id;
 	int value;
 	int s,t;

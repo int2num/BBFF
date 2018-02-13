@@ -171,37 +171,43 @@ class Graph
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
 			time_t starta=clock();
+			vector<vector<demand>>remain(PC,vector<demand>());
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<result[k].size();i++)
 				{
 					int id=result[k][i].id;
 					int vv=result[k][i].di;
-					ds[k][id].routid.push(make_pair(i,vv));
+					ds[k][id].routid.push_back(make_pair(i,vv));
 				}
-			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
-			vector<vector<demand>>remain(PC,vector<demand>());
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<ds[k].size();i++)
+					sort(ds[k][i].routid.begin(),ds[k][i].routid.end(),paircomp());
+			vector<vector<pair<int,int>>>dsque(2,vector<pair<int,int>>());
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<ds[k].size();i++)
 					{
-						if(!ds[k][i].routid.empty())
+						if(ds[k][i].routid.size()>0)
 							{
-							int vv=ds[k][i].routid.top().second;
-							dsque[k].push(make_pair(i,vv));
+							int vv=ds[k][i].routid[0].second;
+							dsque[k].push_back(make_pair(i,vv));
 							}
+						else
+							dsque[k].push_back(make_pair(i,INF));
 					}
+			for(int k=0;k<PC;k++)
+				sort(dsque[k].begin(),dsque[k].end(),paircomp());
 			time_t mid=clock();
 			cout<<"build queue: "<<mid-starta<<endl;
 			for(int k=0;k<PC;k++)
-				while(!dsque[k].empty())
+				for(int m=0;m<dsque[k].size();m++)
 				{
-					pair<int,int> pp=dsque[k].top();
+					pair<int,int> pp=dsque[k][m];
 					demand nde=ds[k][pp.first];
-					dsque[k].pop();
+					if(pp.second>50000)block.push_back(nde);
 					int flag=0;	
-					while(!nde.routid.empty())
+					for(int u=0;u<nde.routid.size();u++)
 					{
-						int id=nde.routid.top().first;
-						nde.routid.pop();
+						int id=nde.routid[u].first;
 						Rout RR=result[k][id];
 						int ly=RR.ly;
 						int v=RR.di;
@@ -256,7 +262,7 @@ class Graph
 			vector<demand>block;
 			vector<demand>addin;
 			double timecount=0;
-			serialadd(ds,addin,block,timecount);
+			//serialadd(ds,addin,block,timecount);
 			while(ds[0].size()>0||ds[1].size()>0)
 				ds=greedy(ds,addin,block,timecount);
 			times.push_back(timecount);
