@@ -180,13 +180,14 @@ class Graph
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<ds[k].size();i++)
 					dsque[k].push(ds[k][i]);
+			time_t mid=clock();
+			cout<<"build queue: "<<mid-starta<<endl;
 			for(int k=0;k<PC;k++)
 				while(!dsque[k].empty())
 				{
 					demand nde=dsque[k].top();
 					dsque[k].pop();
-					int flag=0;
-					
+					int flag=0;	
 					while(!nde.backroute.empty())
 					{
 						int ly=nde.backroute.top().ly;
@@ -230,7 +231,7 @@ class Graph
 					}
 				}
 			time_t enda=clock();
-			cout<<"alg time: "<<enda-starta<<endl;
+			cout<<"alg time: "<<enda-mid<<endl;
 			return remain;
 		}
         void routalg(int s,int t,int bw)
