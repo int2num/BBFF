@@ -11,7 +11,6 @@ int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,ve
 	int tnode=-1;
 	int tv=-1;
 	priority_queue<pair<int,int>,vector<pair<int,int>>,ccmp>que;
-	//queue<pair<int,int>>que;
 	que.push(make_pair(s,0));
 	dist[s]=0;
 	while(!que.empty()&&vflag)

@@ -408,6 +408,8 @@ class BFSor:public algbase
 		int*p,*dev_p;
 		int *stid,*dev_stid;
 		vector<vector<int>>nein,neie;
+		vector<event>addevent;
+		vector<vector<int>>delevent;
 	public:
 		 BFSor();
 	 	 void topsort();
