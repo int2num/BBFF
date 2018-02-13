@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -72,7 +72,7 @@ class paircomp{
 public:
 	bool operator()(pair<int,int>&a,pair<int,int>&b)
 	{
-		return a.second<b.second;
+		return a.second>b.second;
 	}
 };
 struct demand{
@@ -283,8 +283,16 @@ class PBellmanor:public algbase{
 				while(prn!=s)
 				{
 					int eid=peg[prn];
-					rout.push_back(eid);
 					prn=edges[eid].s;
+					rout.push_back(eid);
+					if(IFHOP<1)
+						esigns[k][eid]*=-1;
+					if(IFHOP==1)
+					{
+						eid=(eid/WD)*WD;
+						for(int j=0;j<WD;j++)
+							esigns[k][eid+j]*=-1;
+					}
 					hop++;
 				}
 			}

@@ -5,7 +5,7 @@
 #include"pathalg.h"
 #include<set>
 #include<queue>
-#define LAMBDA 0.5
+#define LAMBDA 0.02
 #define ADDNUM 100
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
@@ -102,14 +102,14 @@ class Graph
         	for(int i=0;i<average.size();i++)
         		cout<<average[i]<<" ";
         	cout<<endl;
-        	for(int i=0;i<averhops.size();i++)
-                cout<<averhops[i]<<" ";
-            cout<<endl;
+        	//for(int i=0;i<averhops.size();i++)
+                //cout<<averhops[i]<<" ";
+           // cout<<endl;
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
         	cout<<endl;
-        	for(int i=0;i<times.size();i++)
-        	    cout<<times[i]<<" ";
+        	/*for(int i=0;i<times.size();i++)
+        	    cout<<times[i]<<" ";*/
         }
         vector<vector<Sot>>Getspair(vector<vector<demand>>&ds)
 		{
@@ -165,12 +165,12 @@ class Graph
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
         	cout<<"get pair: "<<startu-starty<<endl;
-			router2.updatS(stpair);
-			router2.updatE(esignes);
+			router1.updatS(stpair);
+			router1.updatE(esignes);
 			time_t endu=clock();
 			cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=router2.routalg(0,0,0);
+			vector<vector<Rout>> result=router1.routalg(0,0,0);
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
 			time_t starta=clock();
@@ -212,8 +212,8 @@ class Graph
 								for(int i=0;i<rout.size();i++)
 										if(esignes[ly][rout[i]]<0)
 												{
-														flag=-1;
-														continue;
+													flag=-1;
+													continue;
 												}
 								for(int i=0;i<rout.size();i++)
 										{
@@ -224,10 +224,10 @@ class Graph
 												{
 														eid=(eid/WD)*WD;
 														for(int j=0;j<WD;j++)
-																{
-																		esignes[ly][eid+j]*=-1;
-																		busy++;
-																}
+														{
+															esignes[ly][eid+j]*=-1;
+															busy++;
+														}
 												}
 										}
 								flag=rout.size();
@@ -259,9 +259,9 @@ class Graph
 			vector<demand>block;
 			vector<demand>addin;
 			double timecount=0;
-			serialadd(ds,addin,block,timecount);
-			//while(ds[0].size()>0||ds[1].size()>0)
-				//ds=greedy(ds,addin,block,timecount);
+			//serialadd(ds,addin,block,timecount);
+			while(ds[0].size()>0||ds[1].size()>0)
+				ds=greedy(ds,addin,block,timecount);
 			times.push_back(timecount);
 			int count=0;
 			int hops=0;
@@ -322,6 +322,7 @@ class Graph
         						//router1.updatE(esignes);
         						ds[y-1][i].mark=k;
         						ds[y-1][i].value=w;
+        						//cout<<"value is "<<w<<endl;
         						addin.push_back(ds[y-1][i]);
         						flag=1;
         						break;
