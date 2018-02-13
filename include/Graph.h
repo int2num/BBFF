@@ -159,9 +159,16 @@ class Graph
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
 		{
         	vector<vector<Sot>>stpair=Getspair(ds);
+        	time_t startu=clock();
 			router2.updatS(stpair);
 			router2.updatE(esignes);
+			time_t endu=clock();
+			cout<<"updating time: "<<endu-startu<<endl;
+			time_t startro=clock();
 			vector<vector<Rout>> result=router2.routalg(0,0,0);
+			time_t endro=clock();
+			cout<<"rout alg time: "<<endro-startro<<endl;
+			time_t starta=clock();
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<result[k].size();i++)
 				{
@@ -216,23 +223,22 @@ class Graph
 						break;
 					}
 					if(flag==0){
-						//cout<<"blocking"<<endl;
 						block.push_back(nde);
 					}
 					if(flag<0){
-						//cout<<"remaining"<<endl;
 						remain[k].push_back(nde);
 					}
-					//scout<<flag<<endl;
 				}
+			time_t enda=clock();
+			cout<<"alg time: "<<enda-starta<<endl;
 			return remain;
 		}
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
         	int num=rand()%10+10;
-        	tasknum.push_back(num*2);
-        	tasknum.push_back(num*3);
+        	tasknum.push_back(num*200);
+        	tasknum.push_back(num*300);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
@@ -253,7 +259,7 @@ class Graph
 				if(serv+current+1<ADDNUM)
 					timeque.push(event(-1,serv+current+1,dd.rout,dd.mark));
 			}
-			cout<<"what f"<<endl;
+			//cout<<"what f"<<endl;
 			average.push_back((double)count/(double)addin.size());
 			blocks.push_back(block.size());
 			//cout<<"add in rout cost is "<<count<<endl;

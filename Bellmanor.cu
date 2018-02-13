@@ -58,12 +58,6 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 			 count++;
 			}
 		}
-	/*for(int i=0;i<18;i++)
-	{
-		for(int j=0;j<nodenum;j++)
-			cout<<d[i*nodenum+j]<<" ";
-		cout<<endl;
-	}*/
 	cout<<"count is: "<<count<<" "<<ncount<<endl;
 	Size[0]=nodenum*L[1]*S[0];
 	Size[1]=nodenum*L[2]*S[1];
@@ -130,17 +124,6 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 					}
 		}
 		}
-	int roff=2*nodenum*mm+5*mm;
-	for(int k=0;k<mm;k++)
-	{
-		if(rudu[roff+k]<INT_MAX)
-			{
-			cout<<rudw[roff+k]<<" "<<rudu[roff+k]<<" ";
-			//cout<<ruw[5][k]<<" ";
-			}
-	}
-	cout<<endl;
-	cout<<"wo it is: "<<esigns[2][0]<<endl;
 	int count=0;
 	for(int k=0;k<LY;k++)
 		for(int i=0;i<nodenum;i++)
@@ -195,7 +178,6 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 		{
 			int node=rudu[roff+k]+off;
 			if(rudw[roff+k]<0)continue;
-			//if(rudw[roff+k]==4)
 			if(dm>d[node]+rudw[roff+k])
 				dm=d[node]+rudw[roff+k];
 		}
@@ -212,42 +194,16 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cudaStreamCreate(&stream0);
 	cudaStream_t stream1;
 	cudaStreamCreate(&stream1);
-	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	/*for(int i=0;i<18;i++)
-	{
-		for(int j=0;j<nodenum;j++)
-			cout<<d[i*nodenum+j]<<" ";
-		cout<<endl;
-	}*/
 	for(int i=0;i<WD+1;i++)
 	{
 		bellmandu<<<Size[0]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
 		bellmandu<<<Size[1]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
 	}
-	//cudaStreamSynchronize(stream1);
-	//cudaStreamSynchronize(stream0);
+	cudaStreamSynchronize(stream1);
+	cudaStreamSynchronize(stream0);
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	cudaMemcpy(rudw,dev_rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	cout<<"ddddd"<<endl;
-	/*for(int i=0;i<18;i++)
-	{
-		for(int j=0;j<nodenum;j++)
-			cout<<d[i*nodenum+j]<<" ";
-		cout<<endl;
-	}
-	int roff=2*nodenum*mm+5*mm;
-	for(int k=0;k<mm;k++)
-	{
-		if(rudu[roff+k]<INT_MAX)
-			{
-			cout<<rudw[roff+k]<<" "<<rudu[roff+k]<<" ";
-			//cout<<ruw[5][k]<<" ";
-			}
-	}
-	cout<<endl;*/
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
-	cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
@@ -298,10 +254,6 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 		}
 	end=clock();
 	cout<<"GPU time is : "<<end-start<<endl;
-	//cudaFree(dev_te);
-	//cudaFree(dev_st);
-	//cudaFree(dev_d);
-	//cudaFree(dev_w);
 	return result;
 };
 
