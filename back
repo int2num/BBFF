@@ -1,0 +1,28 @@
+	cout<<"rout alg time: "<<endro-startro<<endl;
+			time_t starta=clock();
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<result[k].size();i++)
+				{
+					int id=result[k][i].id;
+					int vv=result[k][i].di;
+					ds[k][id].routid.push_back(make_pair(i,vv));
+				}
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<ds[k].size();i++)
+					sort(ds[k][i].routid.begin(),ds[k][i].routid.end(),paircomp());
+			//vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
+			vector<vector<pair<int,int>>>dsque(2,vector<pair<int,int>>());
+			vector<vector<demand>>remain(PC,vector<demand>());
+			for(int k=0;k<PC;k++)
+				for(int i=0;i<ds[k].size();i++)
+					{
+						if(!ds[k][i].routid.size()>0)
+							{
+							int vv=ds[k][i].routid[0].second;
+							dsque[k].push_back(make_pair(i,vv));
+							}
+					}
+			for(int k=0;k<PC;k++)
+				sort(dsque[k].begin(),dsque[k].end(),paircomp());
+			time_t mid=clock();
+			cout<<"build queue: "<<mid-starta<<endl;

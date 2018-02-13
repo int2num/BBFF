@@ -256,7 +256,7 @@ class Graph
 			vector<demand>block;
 			vector<demand>addin;
 			double timecount=0;
-			//serialadd(ds,addin,block,timecount);
+			serialadd(ds,addin,block,timecount);
 			while(ds[0].size()>0||ds[1].size()>0)
 				ds=greedy(ds,addin,block,timecount);
 			times.push_back(timecount);
@@ -323,8 +323,7 @@ class Graph
         			}
         		}
         	time_t end=clock();
-        	timecount+=(end-start);
-        	
+        	timecount+=end-start;	
         }
         virtual ~Graph(){ 
         	srand(1);

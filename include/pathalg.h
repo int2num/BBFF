@@ -78,6 +78,7 @@ public:
 struct demand{
 	priority_queue<Rout,vector<Rout>,comp> backroute;
 	priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
+	//vector<pair<int,int>>routid;
 	int id;
 	int value;
 	int s,t;
