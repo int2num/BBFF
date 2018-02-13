@@ -6,7 +6,7 @@
 #include<set>
 #include<queue>
 #define LAMBDA 0.5
-#define ADDNUM 500
+#define ADDNUM 100
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -66,7 +66,7 @@ class Graph
         		event ee=timeque.top();
         		count++;
         		current=ee.time;
-        		//if(count>1)break;
+        		//if(current>4)break;
         		if(ee.fuhao>0)
         			{
         				cout<<"adding................. "<<current<<endl;
@@ -75,18 +75,20 @@ class Graph
         			}
         		else
         			{
-        				cout<<"subing.................."<<current<<endl;
+        				//cout<<"subing.................."<<current<<endl;
         				for(int i=0;i<ee.rout.size();i++)
         					{
+        						int eid=ee.rout[i];
         						if(IFHOP<1)
-        							esignes[ee.level][ee.rout[i]]*=-1;
-        						/*if(IFHOP==1)
+        							esignes[ee.level][eid]*=-1;
+        						if(IFHOP==1)
         						{
-        							int eid=(eid/WD)*WD;
+        							eid=(eid/WD)*WD;
+        							//cout<<"eid is "<<eid<<endl;
         							for(int j=0;j<WD;j++)
         								esignes[ee.level][eid+j]*=-1;
             						release++;
-        						}*/
+        						}
         					}
         				router1.updatE(esignes);
         				router2.updatE(esignes);
@@ -153,9 +155,9 @@ class Graph
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block)
 		{
         	vector<vector<Sot>>stpair=Getspair(ds);
-			router1.updatS(stpair);
-			router1.updatE(esignes);
-			vector<vector<Rout>> result=router1.routalg(0,0,0);
+			router2.updatS(stpair);
+			router2.updatE(esignes);
+			vector<vector<Rout>> result=router2.routalg(0,0,0);
 			for(int k=0;k<PC;k++)
 				for(int i=0;i<result[k].size();i++)
 				{
@@ -197,8 +199,8 @@ class Graph
 									eid=(eid/WD)*WD;
 									for(int j=0;j<WD;j++)
 										{
-											//esignes[k][eid+j]*=-1;
-											//busy++;
+											esignes[k][eid+j]*=-1;
+											busy++;
 										}
 								}
 							}
@@ -233,7 +235,7 @@ class Graph
 			time_t start=clock();
 			//serialadd(ds,addin,block);
 			while(ds[0].size()>0||ds[1].size()>0)
-			ds=greedy(ds,addin,block);
+				ds=greedy(ds,addin,block);
 			cout<<"serial over !"<<endl;
 			time_t end=clock();
 			int count=0;
@@ -280,10 +282,10 @@ class Graph
                 							esignes[k][eid]*=-1;
                 						if(IFHOP==1)
                 						{
-                							/*eid=(eid/WD)*WD;
+                							eid=(eid/WD)*WD;
                 							for(int j=0;j<WD;j++)
                 								esignes[k][eid+j]*=-1;
-                							busy++;*/
+                							busy++;
                 						}
         							}
         						router1.updatE(esignes);

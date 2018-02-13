@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 1
+#define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -233,7 +233,7 @@ class PBellmanor:public algbase{
 										hop++;
 									}
 									//cout<<endl;
-								Rout S(s,ters[i],id,di,k,rout);
+								Rout S(s/NUT,ters[i],id,di,k,rout);
 								result[y-1].push_back(S);
 								}
 							}
