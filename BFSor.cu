@@ -14,6 +14,7 @@ void BFSor::topsort()
 };
 void BFSor::updatE(vector<vector<int>>&esigns)
 {
+	cout<<"updating e"<<endl;
 	int count=0;
 	for(int k=0;k<LY;k++)
 		for(int i=0;i<nodenum;i++)

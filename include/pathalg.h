@@ -20,7 +20,7 @@
 #define PC 2
 #define LY1 20
 #define LY2 60
-#define YE 100
+#define YE 500
 #define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000

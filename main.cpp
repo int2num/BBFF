@@ -10,6 +10,6 @@ int main()
     //PBellmanor d2=PBellmanor();
 	BFSor d1=BFSor();
 	PBFSor d2=PBFSor();
-    ERGraph graph(100,1,d2,d1);
+    ERGraph graph(500,1,d2,d1);
     graph.run();
 }

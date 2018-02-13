@@ -14,6 +14,7 @@ void Bellmanor::topsort()
 };
 void Bellmanor::updatE(vector<vector<int>>&tesigns)
 {
+	cout<<"updating e"<<endl;
 	esigns=tesigns;
 	for(int k=0;k<LY;k++)
 		{
@@ -28,9 +29,11 @@ void Bellmanor::updatE(vector<vector<int>>&tesigns)
 			}
 		}
 	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cout<<"out"<<endl;
 }
 void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 {
+	cout<<"updating s"<<endl;
 	L[0]=0;
 	L[1]=LY1;
 	L[2]=LY2;
@@ -61,6 +64,7 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 	Size[1]=nodenum*L[2]*S[1];
 	cudaMemcpy(dev_d,d,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_p,p,ncount*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cout<<"out s"<<endl;
 }
 void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,int _nodenum)
 {
