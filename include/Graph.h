@@ -6,7 +6,7 @@
 #include<set>
 #include<queue>
 #define LAMBDA 0.02
-#define ADDNUM 100
+#define ADDNUM 5
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -108,8 +108,9 @@ class Graph
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
         	cout<<endl;
-        	/*for(int i=0;i<times.size();i++)
-        	    cout<<times[i]<<" ";*/
+        	for(int i=0;i<times.size();i++)
+        	    cout<<times[i]<<" ";
+        	cout<<endl;
         }
         vector<vector<Sot>>Getspair(vector<vector<demand>>&ds)
 		{
@@ -165,12 +166,12 @@ class Graph
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
         	cout<<"get pair: "<<startu-starty<<endl;
-			router1.updatS(stpair);
-			router1.updatE(esignes);
+			router2.updatS(stpair);
+			router2.updatE(esignes);
 			time_t endu=clock();
 			cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=router1.routalg(0,0,0);
+			vector<vector<Rout>> result=router2.routalg(0,0,0);
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
 			time_t starta=clock();
