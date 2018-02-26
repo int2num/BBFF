@@ -2,7 +2,8 @@
 #include"Heap.h"
 #include"limits.h"
 #include<queue>
-int dijkstra(int s,int t,vector<int>&d,vector<int>&peg,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,int nodenum,int WD,set<int>&sets,int size){
+#include<iostream>
+int dijkstra(int s,int t,vector<int>&d,int*peg,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,int nodenum,int WD,set<int>&sets,int size){
 	int tnode=-1;
 	vector<int>flag(nodenum,0);
 	for (int i = 0;i<nodenum;i++)

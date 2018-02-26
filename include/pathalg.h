@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -136,7 +136,6 @@ class PBellmanor:public algbase{
 		vector<vector<vector<int>>>mask;
 		vector<edge>edges;
 		vector<int>dist;
-		vector<int>pre;
 		vector<int>leveln;
 		vector<int>exn2n;
 		vector<vector<int>>rela;
@@ -156,6 +155,7 @@ class PBellmanor:public algbase{
 		PBellmanor():L(3,0){};
         virtual void updatE(vector<vector<int>>&_esigns){
         	esigns=_esigns;
+        	memset(p,-1,LY*YE*sizeof(int));
         };
         virtual void updatS(vector<vector<Sot>>&stpair){
         	stpairs=stpair;
@@ -193,6 +193,8 @@ class PBellmanor:public algbase{
 				neieid.push_back(tmpeid);
 			}
 			cout<<"good so far "<<endl;
+			p=new int[nodenum*LY*YE];
+
         }
         virtual vector<vector<Rout>> routalg(int s,int t,int bw){
         		cout<<"in bellman rout alg"<<endl;
@@ -200,19 +202,21 @@ class PBellmanor:public algbase{
         		start=clock();
         		vector<vector<Rout>>result(2,vector<Rout>());
         		cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
+        		int ncount=0;
+        		vector<int>d(nodenum,0);
         		for(int y=1;y<PC+1;y++)
 					for(int k=L[y-1];k<L[y];k++)
 					{
 						int tnode=-1;
 						vector<int>d(nodenum,INT_MAX);
-						vector<int>peg(nodenum,-1);
 						for(int l=0;l<stpairs[y-1].size();l++)
 						{	
 							int s=stpairs[y-1][l].s*(NUT);
 							set<int>ts=stpairs[y-1][l].ts;
 							vector<int>ters=stpairs[y-1][l].ters;
 							int size=stpairs[y-1][l].size;
-							dijkstra(s,t,d,peg,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
+							int off=ncount*nodenum;
+							dijkstra(s,s,d,p+off,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
 							for(int i=0;i<ters.size();i++)
 							{
 								vector<int>rout;
@@ -228,26 +232,13 @@ class PBellmanor:public algbase{
 										prn=tt*W+i;
 									}
 								}
-								if(prn<0){
-									continue;
-								}
+								if(prn<0)continue;
 								int di=d[prn];
-								//cout<<k<<" "<<l<<" "<<s<<" "<<tt<<" "<<prn<<" "<<di<<endl;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
-								if(prn>=0)
-								{
-									while(prn!=s)
-									{
-										int eid=peg[prn];
-										rout.push_back(eid);
-										prn=edges[eid].s;
-										hop++;
-									}
-									//cout<<endl;
-								//Rout S(id,di,l,k);//,rout);
-								//result[y-1].push_back(S);
-								}
+								Rout S(s,prn,id,min,off,k);
+								result[y-1].push_back(S);
 							}
+							ncount++;
 						}
 					}
         		end=clock();
@@ -258,12 +249,11 @@ class PBellmanor:public algbase{
         vector<int> tunel(int s,int t,int k)
 		{
         	vector<int>d(nodenum,INT_MAX);
-        	vector<int>peg(nodenum,-1);
         	set<int>ts;
         	s=s*NUT;
         	ts.insert(t);
         	int size=1;
-			dijkstra(s,t,d,peg,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
+			dijkstra(s,s,d,p,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
 			vector<int>rout;
 			int hop=0;
 			int tt=t;
@@ -284,7 +274,7 @@ class PBellmanor:public algbase{
 			{
 				while(prn!=s)
 				{
-					int eid=peg[prn];
+					int eid=p[prn];
 					prn=edges[eid].s;
 					rout.push_back(eid);
 					if(IFHOP<1)
@@ -527,7 +517,7 @@ class PBFSor:public algbase{
 					{
 						int off=ncount*nodenum;
 						vector<int>dist(nodenum,INT_MAX);
-						//vector<int>pre(nodenum,-1);
+						//vector<int>pre(nodenum,-1)
 						int s=stpairs[y-1][l].s;
 						set<int> ts=stpairs[y-1][l].ts;
 						vector<int>ters=stpairs[y-1][l].ters;

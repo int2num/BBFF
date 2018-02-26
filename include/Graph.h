@@ -166,12 +166,12 @@ class Graph
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
         	cout<<"get pair: "<<startu-starty<<endl;
-			router1.updatS(stpair);
-			router1.updatE(esignes);
+			router2.updatS(stpair);
+			router2.updatE(esignes);
 			time_t endu=clock();
 			cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=router1.routalg(0,0,0);
+			vector<vector<Rout>> result=router2.routalg(0,0,0);
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
@@ -220,7 +220,7 @@ class Graph
 								int ff=1;
 								while(node!=s)
 								{
-									int eid=router1.p[node+offf];
+									int eid=router2.p[node+offf];
 									if(esignes[ly][eid]<0)
 									{
 										flag=-1;
