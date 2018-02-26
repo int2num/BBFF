@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 1
+#define IFHOP 0
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -192,16 +192,14 @@ class PBellmanor:public algbase{
 				nein.push_back(tmpn);
 				neieid.push_back(tmpeid);
 			}
-			cout<<"good so far "<<endl;
 			p=new int[nodenum*LY*YE];
 
         }
         virtual vector<vector<Rout>> routalg(int s,int t,int bw){
-        		cout<<"in bellman rout alg"<<endl;
+        		//cout<<"in bellman rout alg"<<endl;
         		time_t start,end;
         		start=clock();
         		vector<vector<Rout>>result(2,vector<Rout>());
-        		cout<<L[0]<<" "<<L[1]<<" "<<L[2]<<endl;
         		int ncount=0;
         		vector<int>d(nodenum,0);
         		for(int y=1;y<PC+1;y++)
@@ -242,8 +240,8 @@ class PBellmanor:public algbase{
 						}
 					}
         		end=clock();
-        		cout<<"cpu time is: "<<end-start<<endl;
-        		cout<<"good sofor"<<endl;
+        		//cout<<"cpu time is: "<<end-start<<endl;
+        		//cout<<"good sofor"<<endl;
         		return result;
 	 	}
         vector<int> tunel(int s,int t,int k)
@@ -461,7 +459,7 @@ class PBFSor:public algbase{
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	maxbw=500;
         	stes=stpair;
-        	cout<<"in pathalg init "<<stes.size()<<endl;
+        	//cout<<"in pathalg init "<<stes.size()<<endl;
         	edges=extenedges.first;
         	esigns=extenedges.second;
         	edgesize=edges.size(),
@@ -478,7 +476,7 @@ class PBFSor:public algbase{
     		pre=pp;
 			pesize=edges.size();
 			W=WD+1;
-			cout<<"what f"<<endl;
+			//cout<<"what f"<<endl;
 			for(int k=0;k<LY;k++)
 			{
 				vector<vector<int>>tmpn(nodenum,vector<int>());
@@ -505,7 +503,7 @@ class PBFSor:public algbase{
                	L[2]=LY;
                }
         virtual vector<vector<Rout>> routalg(int s,int t,int bw){
-        	cout<<"in BFS rout alg"<<endl;
+        	//cout<<"in BFS rout alg"<<endl;
 			time_t start,end;
 			start=clock();
 			vector<vector<Rout>>result(2,vector<Rout>());
@@ -516,7 +514,7 @@ class PBFSor:public algbase{
 					for(int l=0;l<stpairs[y-1].size();l++)
 					{
 						int off=ncount*nodenum;
-						vector<int>dist(nodenum,INT_MAX);
+						vector<int>dist(nodenum,INT_MAX/2);
 						//vector<int>pre(nodenum,-1)
 						int s=stpairs[y-1][l].s;
 						set<int> ts=stpairs[y-1][l].ts;
@@ -529,20 +527,18 @@ class PBFSor:public algbase{
 								int hop=0;
 								int prn=ters[i];
 								int d=dist[ters[i]];
-								//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
-								if(p[prn]<0||d>WD)
+								if(dist[prn]>WD)
 									continue;
 								int id=stpairs[y-1][l].mmpid[ters[i]];
 								Rout S(s,ters[i],id,d,off,k);
-								//Rout S(id,d,l,k);//,rout);
 								result[y-1].push_back(S);
 							}
 					  ncount++;
 					}
 				}
 			end=clock();
-			cout<<"cpu time is: "<<end-start<<endl;
-			cout<<"good sofor"<<endl;
+			//cout<<"cpu time is: "<<end-start<<endl;
+			//cout<<"good sofor"<<endl;
 			return result;
 	 	}
 	 	vector<int> tunel(int s,int t,int k){

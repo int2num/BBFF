@@ -5,7 +5,7 @@
 #include"pathalg.h"
 #include<set>
 #include<queue>
-#define LAMBDA 0.02
+#define LAMBDA 0.01
 #define ADDNUM 5
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
@@ -49,6 +49,7 @@ class Graph
         vector<vector<int>>esignes;
         algbase&router1;
         algbase&router2;
+        algbase&mrouter;
         int current;
         priority_queue<event,vector<event>,cevent>timeque;
         vector<double>average;
@@ -60,8 +61,10 @@ class Graph
         vector<double>times;
         vector<event>addevent;
         vector<vector<pair<int,int>>>delevent;
+        
         void run()
         {
+        	mrouter=router1;
         	busy=0;
         	int count=0;
         	current=0;
@@ -148,16 +151,22 @@ class Graph
 				c1=0;
 				for(int i=0;i<tasknum[k];i++)
 				{
-				int s=rand()%n;
-				int t=s;
-				while(t==s)t=rand()%n;
-				if(se.find(make_pair(s,t))==se.end())
+					while(1)
 					{
-						se.insert(make_pair(s,t));
-						ds[k].push_back(demand(s,t,c1++));
+						int s=rand()%n;
+						int t=s;
+						while(t==s)t=rand()%n;
+						if(se.find(make_pair(s,t))==se.end())
+							{
+								se.insert(make_pair(s,t));
+								ds[k].push_back(demand(s,t,c1++));
+								break;
+							}
+						}
 					}
-				}
+			
 			}
+			cout<<"add in size is "<<ds[0].size()+ds[1].size()<<endl;
 			return ds;
 		}
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double &timecount)
@@ -165,15 +174,15 @@ class Graph
         	time_t starty=clock();
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
-        	cout<<"get pair: "<<startu-starty<<endl;
-			router2.updatS(stpair);
-			router2.updatE(esignes);
+        	//cout<<"get pair: "<<startu-starty<<endl;
+			mrouter.updatS(stpair);
+			mrouter.updatE(esignes);
 			time_t endu=clock();
-			cout<<"updating time: "<<endu-startu<<endl;
+			//cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=router2.routalg(0,0,0);
+			vector<vector<Rout>> result=mrouter.routalg(0,0,0);
 			time_t endro=clock();
-			cout<<"rout alg time: "<<endro-startro<<endl;
+			//cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
 			time_t starta=clock();
 			for(int k=0;k<PC;k++)
@@ -183,28 +192,37 @@ class Graph
 							int vv=result[k][i].di;
 							ds[k][id].routid.push(make_pair(i,vv));
 					}
-			cout<<"here!"<<endl;
+			//cout<<"here!"<<endl;
+			cout<<result[0].size()<<" "<<result[1].size()<<endl;
 			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<ds[k].size();i++)
 							{
 									if(!ds[k][i].routid.empty())
 											{
-											int vv=ds[k][i].routid.top().second;
-											dsque[k].push(make_pair(i,vv));
+											  int vv=ds[k][i].routid.top().second;
+											  dsque[k].push(make_pair(i,vv));
 											}
+									else
+										{
+											dsque[k].push(make_pair(i,INF));
+											cout<<"id "<<ds[k][i].s<<" "<<ds[k][i].t<<endl;
+										}
 							}
 			time_t mid=clock();
-			cout<<"build queue: "<<mid-starta<<endl;
+			//cout<<"build queue: "<<mid-starta<<endl;
+			int count=0;
 			for(int k=0;k<PC;k++)
-				{
+			{
 				int newid=0;
 				while(!dsque[k].empty())
 				{
-					
+						count++;
 						pair<int,int> pp=dsque[k].top();
 						demand nde=ds[k][pp.first];
 						dsque[k].pop();
+						if(pp.second==INF)
+							{block.push_back(nde);continue;}
 						int flag=0;
 						while(!nde.routid.empty())
 						{
@@ -220,7 +238,7 @@ class Graph
 								int ff=1;
 								while(node!=s)
 								{
-									int eid=router2.p[node+offf];
+									int eid=mrouter.p[node+offf];
 									if(esignes[ly][eid]<0)
 									{
 										flag=-1;
@@ -254,26 +272,25 @@ class Graph
 								break;
 						}
 						//cout<<"flag is "<<flag<<endl;
-						if(flag==0){
-								block.push_back(nde);
-						}
+						if(flag<=0)cout<<"ops"<<endl;
 						if(flag<0){
 								nde.id=newid++;
 								remain[k].push_back(nde);
 								
 						}
 				}
-				}
+			}
+		cout<<"rr size is "<<count<<endl;
 		time_t enda=clock();
-		cout<<"alg time: "<<enda-mid<<endl;
+		//cout<<"alg time: "<<enda-mid<<endl;
 		timecount+=(enda-starty);
 		return remain;
 		}
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	int num=rand()%10+10;
-        	tasknum.push_back(num*40);
+        	int num=10;//rand()%10+10;
+        	tasknum.push_back(num*20);
         	tasknum.push_back(num*60);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
@@ -292,18 +309,21 @@ class Graph
 				}
 			for(int i=0;i<addin.size();i++)
 			{
-				int serv=randomExponential(LAMBDA);
+				int serv=10;//randomExponential(LAMBDA);
 				demand dd=addin[i];
 				if(serv+current+1<ADDNUM)
 					for(int h=0;h<dd.rout.size();h++)
 						delevent[serv+current+1].push_back(make_pair(dd.mark,dd.rout[h]));
 			}
 			//cout<<"what f"<<endl;
+			if(addin.size()==0)cout<<"what happend!"<<endl;
 			average.push_back((double)count/(double)addin.size());
 			averhops.push_back((double)hops/(double)addin.size());
 			blocks.push_back(block.size());
 			cout<<"add in rout cost is "<<count<<endl;
 			cout<<"add in is "<<addin.size()<<endl;
+			cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
+			cout<<"block size "<<block.size()<<endl;
 			//cout<<"time is"<<end-start<<endl;
 		}
         void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
@@ -355,7 +375,6 @@ class Graph
         	timecount+=end-start;	
         }
         virtual ~Graph(){ 
-        	srand(1);
         };
     protected:
         void addedge(int _s,int _t,int _w,double _bw=500){
@@ -365,7 +384,7 @@ class Graph
             edges.push_back(edge(_t,_s,1));
         };
         virtual void GenGraph()=0;
-        Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),neartable(_n,vector<int>()){
+        Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),mrouter(router1),neartable(_n,vector<int>()){
             vector<event>ee(ADDNUM,event(-1,0));
             vector<vector<pair<int,int>>>dd(ADDNUM,vector<pair<int,int>>());
         	addevent=ee;
@@ -437,7 +456,10 @@ class Graph
             		if(ran<20)
             			esigns[i].push_back(-1);
             		else
-            		esigns[i].push_back(rand()%10+1);
+            			{
+            				esigns[i].push_back(rand()%10+1);
+            				//esigns[i][esigns[i].size()-1]=1;
+            			}
             	}
             esignes=esigns;
             int W=WD+1;
