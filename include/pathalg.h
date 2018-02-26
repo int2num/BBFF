@@ -35,13 +35,13 @@ struct event{
 	
 };
 struct Rout{
-	//int s,t;
+	int s,t;
 	int id;
 	int di;
-	int ye;
+	int offf;
 	int ly;
 	//vector<int>routes;
-	Rout(int _id,int _hops,int _ye,int _ly):id(_id),di(_hops),ye(_ye),ly(_ly){};
+	Rout(int _s,int _t,int _id,int _hops,int _offf,int _ly):s(_s),t(_t),id(_id),di(_hops),offf(_offf),ly(_ly){};
 };
 struct Sot{
 	int s;
@@ -118,6 +118,7 @@ class algbase {
             return rout;
         }
     public:
+        int*p;
         algbase(){};
         virtual bool cutcake(int)=0;
         virtual void updatE(vector<vector<int>>&esigns){};
@@ -243,8 +244,8 @@ class PBellmanor:public algbase{
 										hop++;
 									}
 									//cout<<endl;
-								Rout S(id,di,l,k);//,rout);
-								result[y-1].push_back(S);
+								//Rout S(id,di,l,k);//,rout);
+								//result[y-1].push_back(S);
 								}
 							}
 						}
@@ -341,7 +342,7 @@ class Bellmanor:public algbase
 		int W;
 		int *st,*te,*dev_st,*dev_te;
 		int *chan,*dev_chan;
-		int*p,*dev_p;
+		int*dev_p;
 		int*esignes;
 		vector<vector<int>>neibn;
 		int *mark,*dev_mark;
@@ -415,7 +416,7 @@ class BFSor:public algbase
 		vector<int>nodeoff;
 		vector<int>leveloff;
 		vector<vector<Sot>>stps;
-		int*p,*dev_p;
+		int*dev_p;
 		int *stid,*dev_stid;
 		vector<vector<int>>nein,neie;
 		vector<event>addevent;
@@ -551,8 +552,8 @@ class PBFSor:public algbase{
 									prn=edges[eid].s;
 									hop++;
 								}
-							Rout S(id,d,l,k);//,rout);
-							result[y-1].push_back(S);
+							//Rout S(id,d,l,k);//,rout);
+							//result[y-1].push_back(S);
 							}
 						}
 				}

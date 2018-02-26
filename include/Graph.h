@@ -181,8 +181,12 @@ class Graph
 					{
 							int id=result[k][i].id;
 							int vv=result[k][i].di;
+							//cout<<id<<" "<<vv<<" "<<i<<endl;
+							//cout<<ds[k].size()<<endl;
 							ds[k][id].routid.push(make_pair(i,vv));
+							//cout<<"push success!"<<endl;
 					}
+			cout<<"here!"<<endl;
 			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<ds[k].size();i++)
@@ -195,9 +199,12 @@ class Graph
 							}
 			time_t mid=clock();
 			cout<<"build queue: "<<mid-starta<<endl;
-			/*for(int k=0;k<PC;k++)
+			for(int k=0;k<PC;k++)
+				{
+				int newid=0;
 				while(!dsque[k].empty())
 				{
+					
 						pair<int,int> pp=dsque[k].top();
 						demand nde=ds[k][pp.first];
 						dsque[k].pop();
@@ -208,14 +215,27 @@ class Graph
 								nde.routid.pop();
 								Rout RR=result[k][id];
 								int ly=RR.ly;
-								int v=RR.di;
-								vector<int>rout=RR.routes;
-								for(int i=0;i<rout.size();i++)
-										if(esignes[ly][rout[i]]<0)
-												{
-													flag=-1;
-													continue;
-												}
+								int offf=RR.offf;
+								int v=RR.di;	
+								int s=RR.s;
+								int node=RR.t;
+								vector<int>rout;
+								int ff=1;
+								//cout<<"ly is "<<ly<<endl;
+								while(node!=s)
+								{
+									int eid=router2.p[node+offf];
+									//cout<<esignes[ly][eid]<<endl;
+									if(esignes[ly][eid]<0)
+									{
+										flag=-1;
+										ff=-1;
+										break;
+									}
+									rout.push_back(eid);
+									node=edges[eid].s;
+								}
+								if(ff<0)continue;
 								for(int i=0;i<rout.size();i++)
 										{
 												int eid=rout[i];
@@ -238,16 +258,20 @@ class Graph
 								addin.push_back(nde);
 								break;
 						}
+						//cout<<"flag is "<<flag<<endl;
 						if(flag==0){
 								block.push_back(nde);
 						}
 						if(flag<0){
+								nde.id=newid++;
 								remain[k].push_back(nde);
+								
 						}
+				}
 				}
 		time_t enda=clock();
 		cout<<"alg time: "<<enda-mid<<endl;
-		timecount+=(enda-starty);*/
+		timecount+=(enda-starty);
 		return remain;
 		}
         void routalg(int s,int t,int bw)
@@ -453,11 +477,13 @@ class Graph
             int count=0;
             if(IFHOP>0)
             	{
+            	edges=nedges;
             	router1.init(make_pair(nedges,nesigns),stpair,n*W);
             	router2.init(make_pair(nedges,nesigns),stpair,n*W);
             	}
            	else
             {
+           		edges=redges;
             	router1.init(make_pair(redges,esigns),stpair,n);
             	router2.init(make_pair(redges,esigns),stpair,n);
             }

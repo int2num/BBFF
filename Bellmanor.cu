@@ -259,7 +259,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 						}
 					int node=prn-offf;
 					if(prn<0)continue;
-					Rout S(id,min,l,k);
+					Rout S(s,node,id,min,offf,k);
 					result[y-1].push_back(S);
 				}
 				count++;
