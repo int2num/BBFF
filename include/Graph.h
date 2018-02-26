@@ -6,7 +6,7 @@
 #include<set>
 #include<queue>
 #define LAMBDA 0.01
-#define ADDNUM 5
+#define ADDNUM 500
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -105,9 +105,9 @@ class Graph
         	for(int i=0;i<average.size();i++)
         		cout<<average[i]<<" ";
         	cout<<endl;
-        	//for(int i=0;i<averhops.size();i++)
-                //cout<<averhops[i]<<" ";
-           // cout<<endl;
+        	for(int i=0;i<averhops.size();i++)
+                cout<<averhops[i]<<" ";
+            cout<<endl;
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
         	cout<<endl;
@@ -139,6 +139,7 @@ class Graph
         			stpair[k].push_back(S);
         		}	
         	}
+        	
         	return stpair;
 		}
         vector<vector<demand>>Gendemand(vector<int>&tasknum)
@@ -206,7 +207,7 @@ class Graph
 									else
 										{
 											dsque[k].push(make_pair(i,INF));
-											cout<<"id "<<ds[k][i].s<<" "<<ds[k][i].t<<endl;
+											//cout<<"id "<<ds[k][i].s<<" "<<ds[k][i].t<<endl;
 										}
 							}
 			time_t mid=clock();
@@ -272,7 +273,6 @@ class Graph
 								break;
 						}
 						//cout<<"flag is "<<flag<<endl;
-						if(flag<=0)cout<<"ops"<<endl;
 						if(flag<0){
 								nde.id=newid++;
 								remain[k].push_back(nde);
@@ -322,8 +322,8 @@ class Graph
 			blocks.push_back(block.size());
 			cout<<"add in rout cost is "<<count<<endl;
 			cout<<"add in is "<<addin.size()<<endl;
-			cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
-			cout<<"block size "<<block.size()<<endl;
+			//cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
+			//cout<<"block size "<<block.size()<<endl;
 			//cout<<"time is"<<end-start<<endl;
 		}
         void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
