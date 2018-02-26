@@ -181,10 +181,7 @@ class Graph
 					{
 							int id=result[k][i].id;
 							int vv=result[k][i].di;
-							//cout<<id<<" "<<vv<<" "<<i<<endl;
-							//cout<<ds[k].size()<<endl;
 							ds[k][id].routid.push(make_pair(i,vv));
-							//cout<<"push success!"<<endl;
 					}
 			cout<<"here!"<<endl;
 			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
@@ -221,11 +218,9 @@ class Graph
 								int node=RR.t;
 								vector<int>rout;
 								int ff=1;
-								//cout<<"ly is "<<ly<<endl;
 								while(node!=s)
 								{
 									int eid=router2.p[node+offf];
-									//cout<<esignes[ly][eid]<<endl;
 									if(esignes[ly][eid]<0)
 									{
 										flag=-1;
@@ -278,8 +273,8 @@ class Graph
 		{
         	vector<int>tasknum;
         	int num=rand()%10+10;
-        	tasknum.push_back(num*200);
-        	tasknum.push_back(num*300);
+        	tasknum.push_back(num*40);
+        	tasknum.push_back(num*60);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;

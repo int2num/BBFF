@@ -153,7 +153,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaMemcpy(p,dev_p,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	vector<vector<Rout>>result(2,vector<Rout>());
-	/*int offer=L[1]*nodenum*stps[0].size();
+	int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
@@ -174,22 +174,19 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 					int ds=d[off+t];
 					if(ds>WD)continue;
 					//cout<<k<<" "<<l<<" "<<s<<" "<<t<<" "<<ds<<" : "<<d[s+off]<<" "<<s+off<<endl;
-					int prn=off+t;
+					/*int prn=off+t;
 					int hop=0;
 					vector<int>rout;
-					if(prn>=0)
+					while(prn!=s+off)
 					{
-						while(prn!=s+off)
-						{
-							int eid=p[prn];
-							rout.push_back(eid);
-							prn=edges[eid].s+off;
-							//cout<<prn<<endl;
-							hop++;
-						}
-						Rout S(s,t,id,ds,k,rout);
-						result[y-1].push_back(S);
-					}					
+						int eid=p[prn];
+						rout.push_back(eid);
+						prn=edges[eid].s+off;
+						//cout<<prn<<endl;
+						hop++;
+					}*/
+					Rout S(s,t,id,ds,off,k);
+					result[y-1].push_back(S);			
 				}
 				off+=nodenum;
 			}
@@ -200,7 +197,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	//cudaFree(dev_te);
 	//cudaFree(dev_st);
 	//cudaFree(dev_d);
-	cout<<"before return"<<endl;*/
+	cout<<"before return"<<endl;
 	return result;
 };
 /*__global__ void BFSfast(int *st,int *te,int *d,int round,int E,int N,int size)

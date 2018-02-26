@@ -6,10 +6,10 @@ int main()
 {
 	ofstream outfile;
 	outfile.open("data.txt", ios::app);
-	Bellmanor d1=Bellmanor();
-    PBellmanor d2=PBellmanor();
-	//BFSor d1=BFSor();
-	//PBFSor d2=PBFSor();
+	//Bellmanor d1=Bellmanor();
+    //PBellmanor d2=PBellmanor();
+	BFSor d1=BFSor();
+	PBFSor d2=PBFSor();
     ERGraph graph(100,1,d2,d1);
     graph.run();
 }
