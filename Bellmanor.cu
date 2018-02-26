@@ -64,7 +64,7 @@ void Bellmanor::updatS(vector<vector<Sot>>&stpair)
 }
 void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,int _nodenum)
 {
-	cout<<"init bellmanor"<<endl;
+	//cout<<"init bellmanor"<<endl;
 	nodenum=_nodenum;
 	edges=ext.first;
 	esigns=ext.second;

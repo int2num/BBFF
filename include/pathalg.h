@@ -17,11 +17,26 @@
 #ifndef LY 
 	#define LY 80
 #endif
+#ifndef NODE
+	#define NODE 100
+#endif
+#ifndef DSIZE
+	#define DSIZE 10
+#endif
+#ifndef SERT
+	#define SERT 20
+#endif
+#ifndef IFHOP
+	#define IFHOP 1
+#endif
+#ifndef OBNUM
+	#define OBNUM 2000
+#endif
+
 #define PC 2
-#define LY1 20
-#define LY2 60
-#define YE 100
-#define IFHOP 1
+#define LY1 ((LY/4))
+#define LY2 ((LY/4)*3)
+#define YE NODE
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)

@@ -101,13 +101,13 @@ class Graph
         		double r=rand()%100;
         		if(r/100.0<=ratio)
         		{
-        			cout<<"adding................. "<<current<<endl;
+        			//cout<<"adding................. "<<current<<endl;
         			routalg(0,0,0);
         			count++;
         		}
         	}
-        	cout<<"release: "<<release<<endl;
-        	cout<<"beasy: "<<busy<<endl;
+        	//cout<<"release: "<<release<<endl;
+        	//cout<<"beasy: "<<busy<<endl;
         	for(int i=0;i<average.size();i++)
         		cout<<average[i]<<" ";
         	cout<<endl;
@@ -313,9 +313,9 @@ class Graph
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	int num=10;//rand()%10+10;
-        	tasknum.push_back(num*20);
-        	tasknum.push_back(num*60);
+        	int num=rand()%10+10;
+        	tasknum.push_back(num*DSIZE);
+        	tasknum.push_back(num*3*DSIZE);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
@@ -543,9 +543,9 @@ class Graph
 class ERGraph:public Graph{
 public:
     ERGraph(int _n,int _degree,algbase&alg1,algbase&alg2):Graph(_n,_degree,alg1,alg2){
-    	cout<<"before gen graph"<<endl;
+    	//cout<<"before gen graph"<<endl;
     	GenGraph();
-    	cout<<"gen graph success"<<endl;
+    	//cout<<"gen graph success"<<endl;
     	extend();
     };
 private:
