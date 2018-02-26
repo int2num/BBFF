@@ -175,7 +175,7 @@ class Graph
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
-			/*time_t starta=clock();
+			time_t starta=clock();
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<result[k].size();i++)
 					{
@@ -195,7 +195,7 @@ class Graph
 							}
 			time_t mid=clock();
 			cout<<"build queue: "<<mid-starta<<endl;
-			for(int k=0;k<PC;k++)
+			/*for(int k=0;k<PC;k++)
 				while(!dsque[k].empty())
 				{
 						pair<int,int> pp=dsque[k].top();

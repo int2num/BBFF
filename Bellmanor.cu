@@ -229,14 +229,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 	cudaMemcpy(d,dev_d,ncount*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaMemcpy(p,dev_p,ncount*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	end=clock();
-	vector<int>pre(ncount*nodenum,-1);
-	for(int i=0;i<ncount*nodenum;i++)
-	{
-		if(p[i]>=0)
-			pre[i]=p[i];
-	}
 	vector<vector<Rout>>result(2,vector<Rout>());
-	int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
@@ -252,10 +245,9 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 				for(int i=0;i<ters.size();i++)
 				{
 					int id=stps[y-1][l].mmpid[ters[i]];
-					vector<int>rout;
 					int hop=0;
 					int tt=ters[i];
-					int min=50000;
+					int min=INF;
 					int prn=-1;
 					for(int i=1;i<W;i++)
 						{
@@ -267,20 +259,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 						}
 					int node=prn-offf;
 					if(prn<0)continue;
-					/*while(node!=s)
-						{
-						    int i=p[node+offf];
-							//for(int i=0;i<rus[node].size();i++)
-								//{
-									//if(esigns[k][ruw[node][i]]>0&&esigns[k][ruw[node][i]]+d[offf+rus[node][i]]==d[offf+node])
-									{
-										rout.push_back(i);
-										node=edges[i].s;
-										//break;
-									//}
-								//}
-						}*/
-					Rout S(s/NUT,tt*W,id,min,k);
+					Rout S(id,min,l,k);
 					result[y-1].push_back(S);
 				}
 				count++;
