@@ -209,7 +209,7 @@ __global__ void bellmancolor(int *rudu,int*rudw,int*rid,int *d,int*p,int N,int s
 }
 vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 {
-	//cout<<"inbellman"<<endl;
+	cout<<"inbellman"<<endl;
 	int kk=1;
 	time_t start,end;
 	start=clock();
@@ -265,7 +265,7 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 				count++;
 			}
 		}
-	//cout<<"GPU time is : "<<end-start<<endl;
+	cout<<"GPU time is : "<<end-start<<endl;
 	return result;
 };
 

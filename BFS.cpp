@@ -10,14 +10,14 @@ int BFS(int s,int t,vector<int>&dist,int*pre,vector<vector<int>>&neie,vector<vec
 	int vflag=1;
 	int tnode=-1;
 	int tv=-1;
-	//priority_queue<pair<int,int>,vector<pair<int,int>>,ccmp>que;
-	queue<pair<int,int>>que;
+	priority_queue<pair<int,int>,vector<pair<int,int>>,ccmp>que;
+	//queue<pair<int,int>>que;
 	que.push(make_pair(s,0));
 	dist[s]=0;
 	while(!que.empty()&&vflag)
 	{
-		int node=que.front().first;
-		int v=que.front().second;
+		int node=que.top().first;
+		int v=que.top().second;
 		que.pop();
 		if(v>WD)break;
 		for(int i=0;i<nein[node].size();i++)

@@ -6,7 +6,7 @@
 #include<set>
 #include<queue>
 #define LAMBDA 0.01
-#define ADDNUM 500
+#define ADDNUM 5
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -64,7 +64,7 @@ class Graph
         
         void run()
         {
-        	mrouter=router1;
+        	//mrouter=router1;
         	busy=0;
         	int count=0;
         	current=0;
@@ -172,18 +172,20 @@ class Graph
 		}
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double &timecount)
 		{
+            algbase&router=router2;
+            
         	time_t starty=clock();
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
-        	//cout<<"get pair: "<<startu-starty<<endl;
-			mrouter.updatS(stpair);
-			mrouter.updatE(esignes);
+        	cout<<"get pair: "<<startu-starty<<endl;
+			router.updatS(stpair);
+			router.updatE(esignes);
 			time_t endu=clock();
-			//cout<<"updating time: "<<endu-startu<<endl;
+			cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=mrouter.routalg(0,0,0);
+			vector<vector<Rout>> result=router.routalg(0,0,0);
 			time_t endro=clock();
-			//cout<<"rout alg time: "<<endro-startro<<endl;
+			cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
 			time_t starta=clock();
 			for(int k=0;k<PC;k++)
@@ -194,7 +196,7 @@ class Graph
 							ds[k][id].routid.push(make_pair(i,vv));
 					}
 			//cout<<"here!"<<endl;
-			cout<<result[0].size()<<" "<<result[1].size()<<endl;
+			//cout<<result[0].size()<<" "<<result[1].size()<<endl;
 			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<ds[k].size();i++)
@@ -211,7 +213,7 @@ class Graph
 										}
 							}
 			time_t mid=clock();
-			//cout<<"build queue: "<<mid-starta<<endl;
+			cout<<"build queue: "<<mid-starta<<endl;
 			int count=0;
 			for(int k=0;k<PC;k++)
 			{
@@ -239,7 +241,7 @@ class Graph
 								int ff=1;
 								while(node!=s)
 								{
-									int eid=mrouter.p[node+offf];
+									int eid=router.p[node+offf];
 									if(esignes[ly][eid]<0)
 									{
 										flag=-1;
@@ -282,7 +284,7 @@ class Graph
 			}
 		cout<<"rr size is "<<count<<endl;
 		time_t enda=clock();
-		//cout<<"alg time: "<<enda-mid<<endl;
+		cout<<"alg time: "<<enda-mid<<endl;
 		timecount+=(enda-starty);
 		return remain;
 		}
