@@ -5,8 +5,8 @@
 #include"pathalg.h"
 #include<set>
 #include<queue>
-#define LAMBDA 0.01
-#define ADDNUM 5
+#define LAMBDA 0.02
+#define ADDNUM 500
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -167,7 +167,6 @@ class Graph
 					}
 			
 			}
-			cout<<"add in size is "<<ds[0].size()+ds[1].size()<<endl;
 			return ds;
 		}
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double &timecount)
@@ -177,15 +176,15 @@ class Graph
         	time_t starty=clock();
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
-        	cout<<"get pair: "<<startu-starty<<endl;
+        	//cout<<"get pair: "<<startu-starty<<endl;
 			router.updatS(stpair);
 			router.updatE(esignes);
 			time_t endu=clock();
-			cout<<"updating time: "<<endu-startu<<endl;
+			//cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
 			vector<vector<Rout>> result=router.routalg(0,0,0);
 			time_t endro=clock();
-			cout<<"rout alg time: "<<endro-startro<<endl;
+			//cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
 			time_t starta=clock();
 			for(int k=0;k<PC;k++)
@@ -213,7 +212,7 @@ class Graph
 										}
 							}
 			time_t mid=clock();
-			cout<<"build queue: "<<mid-starta<<endl;
+			//cout<<"build queue: "<<mid-starta<<endl;
 			int count=0;
 			for(int k=0;k<PC;k++)
 			{
@@ -282,9 +281,9 @@ class Graph
 						}
 				}
 			}
-		cout<<"rr size is "<<count<<endl;
+		//cout<<"rr size is "<<count<<endl;
 		time_t enda=clock();
-		cout<<"alg time: "<<enda-mid<<endl;
+		//cout<<"alg time: "<<enda-mid<<endl;
 		timecount+=(enda-starty);
 		return remain;
 		}
@@ -311,19 +310,19 @@ class Graph
 				}
 			for(int i=0;i<addin.size();i++)
 			{
-				int serv=10;//randomExponential(LAMBDA);
+				int serv=randomExponential(LAMBDA);
 				demand dd=addin[i];
 				if(serv+current+1<ADDNUM)
 					for(int h=0;h<dd.rout.size();h++)
 						delevent[serv+current+1].push_back(make_pair(dd.mark,dd.rout[h]));
 			}
 			//cout<<"what f"<<endl;
-			if(addin.size()==0)cout<<"what happend!"<<endl;
+			//if(addin.size()==0)cout<<"what happend!"<<endl;
 			average.push_back((double)count/(double)addin.size());
 			averhops.push_back((double)hops/(double)addin.size());
 			blocks.push_back(block.size());
-			cout<<"add in rout cost is "<<count<<endl;
-			cout<<"add in is "<<addin.size()<<endl;
+			//cout<<"add in rout cost is "<<count<<endl;
+			//cout<<"add in is "<<addin.size()<<endl;
 			//cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
 			//cout<<"block size "<<block.size()<<endl;
 			//cout<<"time is"<<end-start<<endl;

@@ -132,7 +132,7 @@ __global__ void BFSfast(int *st,int *te,int *d,int* p,int *stid,int E,int N,int 
 }
 vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 {
-	cout<<"blasting "<<endl;
+	//cout<<"blasting "<<endl;
 	int kk=1;
 	time_t start,end;
 	start=clock();
@@ -192,7 +192,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 			}
 		}
 	end=clock();
-	cout<<"GPU time is : "<<end-start<<endl;
+	//cout<<"GPU time is : "<<end-start<<endl;
 	//cout<<"over!"<<endl;
 	//cudaFree(dev_te);
 	//cudaFree(dev_st);

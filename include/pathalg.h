@@ -21,7 +21,7 @@
 #define LY1 20
 #define LY2 60
 #define YE 100
-#define IFHOP 0
+#define IFHOP 1
 #define inf INT_MAX/2
 #define INF 100000
 #define NUT ((IFHOP>0)?(WD+1):1)
@@ -155,7 +155,7 @@ class PBellmanor:public algbase{
 		PBellmanor():L(3,0){};
         virtual void updatE(vector<vector<int>>&_esigns){
         	esigns=_esigns;
-        	memset(p,-1,LY*YE*sizeof(int));
+        	memset(p,-1,LY*YE*nodenum*sizeof(int));
         };
         virtual void updatS(vector<vector<Sot>>&stpair){
         	stpairs=stpair;
@@ -251,7 +251,9 @@ class PBellmanor:public algbase{
         	s=s*NUT;
         	ts.insert(t);
         	int size=1;
-			dijkstra(s,s,d,p,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);
+        	memset(p,-1,nodenum*sizeof(int));
+			dijkstra(s,s,d,p,neie[k],nein[k],neieid[k],esigns[k],nodenum,WD,ts,size);\
+			//cout<<"ppp"<<endl;
 			vector<int>rout;
 			int hop=0;
 			int tt=t;
@@ -265,7 +267,8 @@ class PBellmanor:public algbase{
 					prn=tt*W+i;
 				}
 			}
-			if(prn<0||min>10000){
+			//cout<<"what fu"<<endl;
+			if(prn<0){
 				return rout;
 			}
 			if(prn>=0)
@@ -286,6 +289,7 @@ class PBellmanor:public algbase{
 					hop++;
 				}
 			}
+			//cout<<"oooo"<<endl;
 			return rout;
 		}
         static bool compare(pair<int,int>&a,pair<int,int>&b)
@@ -454,7 +458,7 @@ class PBFSor:public algbase{
         }
         virtual void updatE(vector<vector<int>>&_esigns){
         	esigns=_esigns;
-        	memset(p,-1,LY*YE*sizeof(int));
+        	memset(p,-1,LY*YE*nodenum*sizeof(int));
         };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	maxbw=500;
@@ -545,6 +549,7 @@ class PBFSor:public algbase{
 	 		int tnode=-1;
 			int tv=WD+1;
 			vector<int>dist(nodenum,INT_MAX);
+        	memset(p,-1,nodenum*sizeof(int));
 			set<int> ts;
 			ts.insert(t);
 			int size=1;
