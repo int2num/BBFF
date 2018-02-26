@@ -5,8 +5,7 @@
 #include"pathalg.h"
 #include<set>
 #include<queue>
-#define LAMBDA 0.02
-#define ADDNUM 500
+#define MAXITER 10000
 using namespace std;
 enum SPWAY {NORMAL,ROUTE,ROTATE,ROTATE_DELETE,PUSH};
 struct levelGraph {
@@ -49,8 +48,9 @@ class Graph
         vector<vector<int>>esignes;
         algbase&router1;
         algbase&router2;
-        algbase&mrouter;
+        algbase*mrouter;
         int current;
+        int method;
         priority_queue<event,vector<event>,cevent>timeque;
         vector<double>average;
         vector<double>averhops;
@@ -61,10 +61,16 @@ class Graph
         vector<double>times;
         vector<event>addevent;
         vector<vector<pair<int,int>>>delevent;
-        
-        void run()
+		float LAMBDA;
+		float ADDNUM;
+		int METHOD;
+		int PARAL;
+        void run(float ratio,float lambda,float MAXNUM,int _method,int _paral)
         {
-        	//mrouter=router1;
+        	LAMBDA=lambda;
+        	ADDNUM=MAXNUM;
+        	METHOD=_method;
+        	PARAL=_paral;
         	busy=0;
         	int count=0;
         	current=0;
@@ -90,10 +96,10 @@ class Graph
 					router1.updatE(esignes);
 					router2.updatE(esignes);
         		}
-        		event ee=addevent[h];
         		count++;
         		current=h;
-        		if(ee.fuhao>0)
+        		double r=rand()%100;
+        		if(r/100.0<=ratio)
         		{
         			cout<<"adding................. "<<current<<endl;
         			routalg(0,0,0);
@@ -177,12 +183,24 @@ class Graph
         	vector<vector<Sot>>stpair=Getspair(ds);
         	time_t startu=clock();
         	//cout<<"get pair: "<<startu-starty<<endl;
-			router.updatS(stpair);
-			router.updatE(esignes);
+        	if(PARAL>0)
+        	{
+        		router2.updatS(stpair);
+        		router2.updatE(esignes);
+        	}
+        	else
+			{
+        		router1.updatS(stpair);
+        		router1.updatE(esignes);
+			}
 			time_t endu=clock();
 			//cout<<"updating time: "<<endu-startu<<endl;
 			time_t startro=clock();
-			vector<vector<Rout>> result=router.routalg(0,0,0);
+			vector<vector<Rout>> result;
+			if(PARAL>0)
+				result=router2.routalg(0,0,0);
+			else
+				result=router1.routalg(0,0,0);
 			time_t endro=clock();
 			//cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
@@ -240,7 +258,12 @@ class Graph
 								int ff=1;
 								while(node!=s)
 								{
-									int eid=router.p[node+offf];
+									
+									int eid;
+									if(PARAL>0)
+										eid=router2.p[node+offf];
+									else
+										eid=router1.p[node+offf];
 									if(esignes[ly][eid]<0)
 									{
 										flag=-1;
@@ -297,9 +320,14 @@ class Graph
 			vector<demand>block;
 			vector<demand>addin;
 			double timecount=0;
-			//serialadd(ds,addin,block,timecount);
-			while(ds[0].size()>0||ds[1].size()>0)
-				ds=greedy(ds,addin,block,timecount);
+			//cout<<"wht"<<endl;
+			if(METHOD>0)
+				serialadd(ds,addin,block,timecount);
+			else
+				{
+					while(ds[0].size()>0||ds[1].size()>0)
+						ds=greedy(ds,addin,block,timecount);
+				}
 			times.push_back(timecount);
 			int count=0;
 			int hops=0;
@@ -329,6 +357,7 @@ class Graph
 		}
         void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
         {
+        	//cout<<"aas"<<endl;
         	time_t start=clock();
 			router1.updatE(esignes);
         	vector<int>L(3,0);
@@ -374,6 +403,7 @@ class Graph
         		}
         	time_t end=clock();
         	timecount+=end-start;	
+        	//cout<<"out"<<endl;
         }
         virtual ~Graph(){ 
         };
@@ -385,9 +415,9 @@ class Graph
             edges.push_back(edge(_t,_s,1));
         };
         virtual void GenGraph()=0;
-        Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),mrouter(router1),neartable(_n,vector<int>()){
+        Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),neartable(_n,vector<int>()){
             vector<event>ee(ADDNUM,event(-1,0));
-            vector<vector<pair<int,int>>>dd(ADDNUM,vector<pair<int,int>>());
+            vector<vector<pair<int,int>>>dd(MAXITER,vector<pair<int,int>>());
         	addevent=ee;
         	delevent=dd;
         	for(int i=0;i<ADDNUM;i++)

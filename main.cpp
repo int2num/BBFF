@@ -11,5 +11,6 @@ int main()
 	//BFSor d1=BFSor();
 	//PBFSor d2=PBFSor();
     ERGraph graph(100,1,d2,d1);
-    graph.run();
+    //void run(float ratio,float lambda,float MAXNUM,int _method,int _paral)
+    graph.run(0.3,0.02,500,0,1);
 }
