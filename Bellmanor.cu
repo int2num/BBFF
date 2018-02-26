@@ -101,6 +101,7 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 		if(rus[i].size()>mm)mm=rus[i].size();
 	rudu=new int[nodenum*mm*LY];
 	rudw=new int[nodenum*mm*LY];
+	rid=new int[nodenum*mm*LY];
 	for(int k=0;k<LY;k++)
 		{
 		int off=k*nodenum*mm;
@@ -115,10 +116,12 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 				if(j<rus[i].size())
 					{	
 						rudw[off+i*mm+j]=esigns[k][ruw[i][j]];
+						rid[off+i*mm+j]=ruw[i][j];
 					}
 				else
 					{
 						rudw[off+i*mm+j]=-1;
+						rid[off+i*mm+j]=-1;
 					}
 		}
 		}
@@ -147,12 +150,14 @@ void Bellmanor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,i
 	//cudaMalloc((void**)&dev_m2,sizeof(int));
 	cudaMalloc((void**)&dev_rudu,mm*LY*nodenum*sizeof(int));
 	cudaMalloc((void**)&dev_rudw,mm*LY*nodenum*sizeof(int));
+	cudaMalloc((void**)&dev_rid,mm*LY*nodenum*sizeof(int));
 	//cudaMalloc((void**)&dev_ruid,mm*LY*nodenum*sizeof(int));
 	//cudaMemcpy(dev_te,te,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 	//cudaMemcpy(dev_st,st,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_w,w,LY*edges.size()*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_rudu,rudu,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_rudw,rudw,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_rid,rid,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	//cudaMemcpy(dev_ruid,ruid,mm*LY*nodenum*sizeof(int),cudaMemcpyHostToDevice);
 	//cudaMemcpy(dev_m1,m1,sizeof(int),cudaMemcpyHostToDevice);
 	//cudaMemcpy(dev_m2,m2,sizeof(int),cudaMemcpyHostToDevice);
@@ -181,7 +186,7 @@ __global__ void bellmandu(int *rudu,int*rudw,int *d,int*p,int N,int size,int siz
 	if(d[i]>dm)
 		d[i]=dm;
 }
-__global__ void bellmancolor(int *rudu,int*rudw,int *d,int*p,int N,int size,int sizeoff,int leveloff,int ye,int ly,int mm)
+__global__ void bellmancolor(int *rudu,int*rudw,int*rid,int *d,int*p,int N,int size,int sizeoff,int leveloff,int ye,int ly,int mm)
 {
 	int i = threadIdx.x + blockIdx.x*blockDim.x;
 	if(i>=size)return;
@@ -198,7 +203,7 @@ __global__ void bellmancolor(int *rudu,int*rudw,int *d,int*p,int N,int size,int 
 			int node=rudu[roff+k]+off;
 			if(rudw[roff+k]<0)continue;
 			if(dm==d[node]+rudw[roff+k])
-				{mark=k;break;}
+				{mark=rid[roff+k];break;}
 		}
 	p[i]=mark;
 }
@@ -217,13 +222,19 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 		bellmandu<<<Size[0]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
 		bellmandu<<<Size[1]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
 	}
-	bellmancolor<<<Size[0]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
-	bellmancolor<<<Size[1]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
+	bellmancolor<<<Size[0]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_rid,dev_d,dev_p,nodenum,Size[0],0,0,S[0],L[1],mm);
+	bellmancolor<<<Size[1]/512+1,512,0>>>(dev_rudu,dev_rudw,dev_rid,dev_d,dev_p,nodenum,Size[1],Size[0],L[1],S[1],L[2],mm);
 	cudaStreamSynchronize(stream1);
 	cudaStreamSynchronize(stream0);
-	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
-	cudaMemcpy(p,dev_p,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	cudaMemcpy(d,dev_d,ncount*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
+	cudaMemcpy(p,dev_p,ncount*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	end=clock();
+	vector<int>pre(ncount*nodenum,-1);
+	for(int i=0;i<ncount*nodenum;i++)
+	{
+		if(p[i]>=0)
+			pre[i]=p[i];
+	}
 	vector<vector<Rout>>result(2,vector<Rout>());
 	int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
@@ -256,20 +267,20 @@ vector<vector<Rout>> Bellmanor::routalg(int s,int t,int bw)
 						}
 					int node=prn-offf;
 					if(prn<0)continue;
-					while(node!=s)
+					/*while(node!=s)
 						{
 						    int i=p[node+offf];
 							//for(int i=0;i<rus[node].size();i++)
 								//{
 									//if(esigns[k][ruw[node][i]]>0&&esigns[k][ruw[node][i]]+d[offf+rus[node][i]]==d[offf+node])
-									//{
-										rout.push_back(ruw[node][i]);
-										node=rus[node][i];
+									{
+										rout.push_back(i);
+										node=edges[i].s;
 										//break;
 									//}
 								//}
-						}
-					Rout S(s/NUT,tt,id,min,k,rout);
+						}*/
+					Rout S(s/NUT,tt*W,id,min,k);
 					result[y-1].push_back(S);
 				}
 				count++;

@@ -153,7 +153,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	cudaMemcpy(d,dev_d,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	cudaMemcpy(p,dev_p,LY*YE*nodenum*sizeof(int),cudaMemcpyDeviceToHost);
 	vector<vector<Rout>>result(2,vector<Rout>());
-	int offer=L[1]*nodenum*stps[0].size();
+	/*int offer=L[1]*nodenum*stps[0].size();
 	vector<int>LL(3,0);
 	LL=L;
 	LL[2]+=LL[1];
@@ -200,7 +200,7 @@ vector<vector<Rout>> BFSor::routalg(int s,int t,int bw)
 	//cudaFree(dev_te);
 	//cudaFree(dev_st);
 	//cudaFree(dev_d);
-	cout<<"before return"<<endl;
+	cout<<"before return"<<endl;*/
 	return result;
 };
 /*__global__ void BFSfast(int *st,int *te,int *d,int round,int E,int N,int size)

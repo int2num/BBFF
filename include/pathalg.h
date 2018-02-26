@@ -39,8 +39,8 @@ struct Rout{
 	int id;
 	int di;
 	int ly;
-	vector<int>routes;
-	Rout(int _s,int _t,int _id,int _hops,int _ly,vector<int>&_routes):s(_s),t(_t),id(_id),di(_hops),ly(_ly),routes(_routes){};
+	//vector<int>routes;
+	Rout(int _s,int _t,int _id,int _hops,int _ly):s(_s),t(_t),id(_id),di(_hops),ly(_ly){};
 };
 struct Sot{
 	int s;
@@ -242,7 +242,7 @@ class PBellmanor:public algbase{
 										hop++;
 									}
 									//cout<<endl;
-								Rout S(s/NUT,ters[i],id,di,k,rout);
+								Rout S(s/NUT,ters[i],id,di,k);//,rout);
 								result[y-1].push_back(S);
 								}
 							}
@@ -347,6 +347,7 @@ class Bellmanor:public algbase
 		int*rudu,*dev_rudu;
 		int*rudw,*dev_rudw;
 		int*ruid,*dev_ruid;
+		int*rid,*dev_rid;
 		int mm;
 		vector<pair<int,int>>stp;
 		//
@@ -549,7 +550,7 @@ class PBFSor:public algbase{
 									prn=edges[eid].s;
 									hop++;
 								}
-							Rout S(s,ters[i],id,d,k,rout);
+							Rout S(s,ters[i],id,d,k);//,rout);
 							result[y-1].push_back(S);
 							}
 						}

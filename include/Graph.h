@@ -174,7 +174,8 @@ class Graph
 			vector<vector<Rout>> result=router2.routalg(0,0,0);
 			time_t endro=clock();
 			cout<<"rout alg time: "<<endro-startro<<endl;
-			time_t starta=clock();
+			vector<vector<demand>>remain(PC,vector<demand>());
+			/*time_t starta=clock();
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<result[k].size();i++)
 					{
@@ -183,7 +184,6 @@ class Graph
 							ds[k][id].routid.push(make_pair(i,vv));
 					}
 			vector<priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>>dsque(2,priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>());
-			vector<vector<demand>>remain(PC,vector<demand>());
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<ds[k].size();i++)
 							{
@@ -247,15 +247,15 @@ class Graph
 				}
 		time_t enda=clock();
 		cout<<"alg time: "<<enda-mid<<endl;
-		timecount+=(enda-starty);
+		timecount+=(enda-starty);*/
 		return remain;
 		}
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
         	int num=rand()%10+10;
-        	tasknum.push_back(num*20);
-        	tasknum.push_back(num*30);
+        	tasknum.push_back(num*200);
+        	tasknum.push_back(num*300);
         	vector<vector<demand>>ds=Gendemand(tasknum);
 			vector<demand>block;
 			vector<demand>addin;
