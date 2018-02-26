@@ -5,7 +5,7 @@ struct ccmp{
         return a.second>b.second;    
     }  
 }; 
-int BFS(int s,int t,vector<int>&dist,vector<int>&pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size,int WD)
+int BFS(int s,int t,vector<int>&dist,int*pre,vector<vector<int>>&neie,vector<vector<int>>&nein,vector<vector<int>>&neieid,vector<int>&esigns,set<int>sets,int size,int WD)
 {
 	int vflag=1;
 	int tnode=-1;

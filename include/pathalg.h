@@ -466,6 +466,7 @@ class PBFSor:public algbase{
         }
         virtual void updatE(vector<vector<int>>&_esigns){
         	esigns=_esigns;
+        	memset(p,-1,LY*YE*sizeof(int));
         };
         virtual void init(pair<vector<edge>,vector<vector<int>>>extenedges,vector<pair<int,int>>stpair,int _nodenum){
         	maxbw=500;
@@ -505,7 +506,7 @@ class PBFSor:public algbase{
 				nein.push_back(tmpn);
 				neieid.push_back(tmpeid);
 			}
-			cout<<"out "<<endl;
+			p=new int[nodenum*LY*YE];
         }
         virtual void updatS(vector<vector<Sot>>&stpair){
                	stpairs=stpair;
@@ -518,46 +519,37 @@ class PBFSor:public algbase{
 			time_t start,end;
 			start=clock();
 			vector<vector<Rout>>result(2,vector<Rout>());
+			int ncount=0;
 			for(int y=1;y<PC+1;y++)
-			for(int k=L[y-1];k<L[y];k++)
-			{
-				for(int l=0;l<stpairs[y-1].size();l++)
+				for(int k=L[y-1];k<L[y];k++)
 				{
-					int tnode=-1;
-					int tv=WD+1;
-					vector<int>dist(nodenum,INT_MAX);
-					vector<int>pre(nodenum,-1);
-					int s=stpairs[y-1][l].s;
-					set<int> ts=stpairs[y-1][l].ts;
-					vector<int>ters=stpairs[y-1][l].ters;
-					int size=stpairs[y-1][l].size;
-					BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
-					for(int i=0;i<ters.size();i++)
-						{
-							vector<int>rout;
-							int hop=0;
-							int prn=ters[i];
-							int d=dist[ters[i]];
-							//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
-							if(pre[prn]<0&&d>WD){
-								continue;
-							}
-							int id=stpairs[y-1][l].mmpid[ters[i]];
-							if(prn>=0)
+					for(int l=0;l<stpairs[y-1].size();l++)
+					{
+						int off=ncount*nodenum;
+						vector<int>dist(nodenum,INT_MAX);
+						//vector<int>pre(nodenum,-1);
+						int s=stpairs[y-1][l].s;
+						set<int> ts=stpairs[y-1][l].ts;
+						vector<int>ters=stpairs[y-1][l].ters;
+						int size=stpairs[y-1][l].size;
+						BFS(s,s,dist,p+off,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
+						for(int i=0;i<ters.size();i++)
 							{
-								while(prn!=s)
-								{
-									int eid=pre[prn];
-									rout.push_back(eid);
-									prn=edges[eid].s;
-									hop++;
-								}
-							//Rout S(id,d,l,k);//,rout);
-							//result[y-1].push_back(S);
+								vector<int>rout;
+								int hop=0;
+								int prn=ters[i];
+								int d=dist[ters[i]];
+								//cout<<k<<" "<<l<<" "<<s<<" "<<prn<<" "<<d<<" :"<<endl;
+								if(p[prn]<0||d>WD)
+									continue;
+								int id=stpairs[y-1][l].mmpid[ters[i]];
+								Rout S(s,ters[i],id,d,off,k);
+								//Rout S(id,d,l,k);//,rout);
+								result[y-1].push_back(S);
 							}
-						}
+					  ncount++;
+					}
 				}
-			}
 			end=clock();
 			cout<<"cpu time is: "<<end-start<<endl;
 			cout<<"good sofor"<<endl;
@@ -567,23 +559,22 @@ class PBFSor:public algbase{
 	 		int tnode=-1;
 			int tv=WD+1;
 			vector<int>dist(nodenum,INT_MAX);
-			vector<int>pre(nodenum,-1);
 			set<int> ts;
 			ts.insert(t);
 			int size=1;
-			BFS(s,s,dist,pre,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
+			BFS(s,s,dist,p,neie[k],nein[k],neieid[k],esigns[k],ts,size,WD);
 			vector<int>rout;
 			int hop=0;
 			int prn=t;
 			int d=dist[t];
-			if(pre[prn]<0&&d>WD){
+			if(p[prn]<0&&d>WD){
 				return rout;
 			}
 			if(prn>=0)
 			{
 				while(prn!=s)
 				{
-					int eid=pre[prn];
+					int eid=p[prn];
 					rout.push_back(eid);
 					prn=edges[eid].s;
 					if(IFHOP<1)
