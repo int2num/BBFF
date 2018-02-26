@@ -62,7 +62,7 @@ void BFSor::updatS(vector<vector<Sot>>&stpair)
 }
 void BFSor::init(pair<vector<edge>,vector<vector<int>>>ext,vector<pair<int,int>>stpair,int _nodenum)
 {
-	cout<<"in paraller BFS init"<<endl;
+	//cout<<"in paraller BFS init"<<endl;
 	nodenum=_nodenum;
 	edges=ext.first;
 	vector<vector<int>>esigns;

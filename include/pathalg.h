@@ -21,16 +21,16 @@
 	#define NODE 100
 #endif
 #ifndef DSIZE
-	#define DSIZE 10
+	#define DSIZE 20
 #endif
 #ifndef SERT
 	#define SERT 20
 #endif
 #ifndef IFHOP
-	#define IFHOP 1
+	#define IFHOP 0
 #endif
 #ifndef OBNUM
-	#define OBNUM 2000
+	#define OBNUM 100
 #endif
 
 #define PC 2
