@@ -55,18 +55,23 @@ class Graph
         vector<double>average;
         vector<double>averhops;
         vector<int>blocks;
+        vector<int>pairsize;
+        vector<int>tasksize;
         int busy;
         int reles;
         double time_count;
         vector<double>times;
-        vector<event>addevent;
         vector<vector<pair<int,int>>>delevent;
+        vector<pair<int,int>>addevent;
 		float LAMBDA;
 		float ADDNUM;
 		int METHOD;
 		int PARAL;
-        void run(float ratio,float lambda,float MAXNUM,int _method,int _paral)
+		double RATIO;
+        void run(float _ratio,float lambda,float MAXNUM,int _method,int _paral)
         {
+
+			RATIO=_ratio;
         	LAMBDA=lambda;
         	ADDNUM=MAXNUM;
         	METHOD=_method;
@@ -75,6 +80,19 @@ class Graph
         	int count=0;
         	current=0;
         	int release=0;
+            vector<pair<int,int>>ee(MAXITER,pair<int,int>(-1,-1));
+            vector<vector<pair<int,int>>>dd(MAXITER,vector<pair<int,int>>());
+        	addevent=ee;
+        	delevent=dd;
+        	for(int i=0;i<ADDNUM;i++)
+        	{
+        		double k=rand()%100;
+        		if(k/100<=RATIO)
+        			{
+        				addevent[i].first=1;
+        				addevent[i].second=rand()%10+10;
+        			}
+        	}
         	for(int h=0;h<ADDNUM;h++)
         	{
         		if(delevent[h].size()>0)
@@ -96,15 +114,13 @@ class Graph
 					router1.updatE(esignes);
 					router2.updatE(esignes);
         		}
-        		count++;
-        		current=h;
-        		double r=rand()%100;
-        		if(r/100.0<=ratio)
+        		if(addevent[current].first>0)
         		{
         			//cout<<"adding................. "<<current<<endl;
         			routalg(0,0,0);
         			count++;
         		}
+        		current++;
         	}
         	//cout<<"release: "<<release<<endl;
         	//cout<<"beasy: "<<busy<<endl;
@@ -113,6 +129,9 @@ class Graph
         	cout<<endl;
         	for(int i=0;i<averhops.size();i++)
                 cout<<averhops[i]<<" ";
+            cout<<endl;
+            for(int i=0;i<tasksize.size();i++)
+                cout<<tasksize[i]<<" ";
             cout<<endl;
         	for(int i=0;i<blocks.size();i++)
         		cout<<blocks[i]<<" ";
@@ -145,7 +164,6 @@ class Graph
         			stpair[k].push_back(S);
         		}	
         	}
-        	
         	return stpair;
 		}
         vector<vector<demand>>Gendemand(vector<int>&tasknum)
@@ -256,6 +274,7 @@ class Graph
 								int node=RR.t;
 								vector<int>rout;
 								int ff=1;
+								int wv=0;
 								while(node!=s)
 								{
 									
@@ -270,6 +289,7 @@ class Graph
 										ff=-1;
 										break;
 									}
+									wv+=esignes[ly][eid];
 									rout.push_back(eid);
 									node=edges[eid].s;
 								}
@@ -292,7 +312,7 @@ class Graph
 								flag=rout.size();
 								nde.rout=rout;
 								nde.mark=ly;
-								nde.value=v;
+								nde.value=wv;
 								addin.push_back(nde);
 								break;
 						}
@@ -313,10 +333,11 @@ class Graph
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	int num=rand()%10+10;
+        	int num=addevent[current].second;
         	tasknum.push_back(num*DSIZE);
         	tasknum.push_back(num*3*DSIZE);
         	vector<vector<demand>>ds=Gendemand(tasknum);
+        	tasksize.push_back(tasknum[0]+tasknum[1]);
 			vector<demand>block;
 			vector<demand>addin;
 			double timecount=0;
@@ -349,11 +370,11 @@ class Graph
 			average.push_back((double)count/(double)addin.size());
 			averhops.push_back((double)hops/(double)addin.size());
 			blocks.push_back(block.size());
-			//cout<<"add in rout cost is "<<count<<endl;
-			//cout<<"add in is "<<addin.size()<<endl;
-			//cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
-			//cout<<"block size "<<block.size()<<endl;
-			//cout<<"time is"<<end-start<<endl;
+			/*cout<<"add in rout cost is "<<count<<endl;
+			cout<<"add in is "<<addin.size()<<endl;
+			cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
+			cout<<"block size "<<block.size()<<endl;
+			cout<<"time is"<<end-start<<endl;*/
 		}
         void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
         {
@@ -416,17 +437,7 @@ class Graph
         };
         virtual void GenGraph()=0;
         Graph(int _n,int _degree,algbase&alg1,algbase&alg2):n(_n),width(WD),remain(500),etn2n(n*(width+1),-1),maxnode(0),router1(alg1),router2(alg2),neartable(_n,vector<int>()){
-            vector<event>ee(ADDNUM,event(-1,0));
-            vector<vector<pair<int,int>>>dd(MAXITER,vector<pair<int,int>>());
-        	addevent=ee;
-        	delevent=dd;
-        	for(int i=0;i<ADDNUM;i++)
-        	{
-        		int k=rand()%100;
-        		if(k<30)
-        			addevent[i].fuhao=1;
-        		
-        	}
+
         };
         pair<vector<edge>,vector<vector<int>>> extend()
         {
