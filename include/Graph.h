@@ -69,7 +69,7 @@ class Graph
         double time_count;
         vector<double>times;
         vector<vector<pair<int,int>>>delevent;
-        vector<pair<int,int>>addevent;
+        vector<pair<int,pair<int,int>>>addevent;
 		float LAMBDA;
 		float ADDNUM;
 		int METHOD;
@@ -91,7 +91,7 @@ class Graph
         	int count=0;
         	current=0;
         	int release=0;
-            vector<pair<int,int>>ee(MAXITER,pair<int,int>(-1,-1));
+            vector<pair<int,pair<int,int>>>ee(MAXITER,pair<int,pair<int,int>>(-1,pair<int,int>(-1,-1)));
             vector<vector<pair<int,int>>>dd(MAXITER,vector<pair<int,int>>());
         	addevent=ee;
         	delevent=dd;
@@ -101,7 +101,8 @@ class Graph
         		if(k/100<=RATIO)
         			{
         				addevent[i].first=1;
-        				addevent[i].second=rand()%10+10;
+        				addevent[i].second.first=rand()%10+10;
+        				addevent[i].second.second=rand()%10+10;
         			}
         	}
         	for(int h=0;h<ADDNUM;h++)
@@ -207,10 +208,9 @@ class Graph
         vector<vector<demand>>greedy(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double &timecount)
 		{
             algbase&router=router2;
-            
         	time_t starty=clock();
         	vector<vector<Sot>>stpair=Getspair(ds);
-        	time_t startu=clock();
+        	//time_t startu=clock();
         	//cout<<"get pair: "<<startu-starty<<endl;
         	if(PARAL>0)
         	{
@@ -222,18 +222,26 @@ class Graph
         		router1.updatS(stpair);
         		router1.updatE(esignes);
 			}
-			time_t endu=clock();
+			//time_t endu=clock();
 			//cout<<"updating time: "<<endu-startu<<endl;
-			time_t startro=clock();
+			//time_t startro=clock();
 			vector<vector<Rout>> result;
 			if(PARAL>0)
 				result=router2.routalg(0,0,0);
 			else
 				result=router1.routalg(0,0,0);
-			time_t endro=clock();
+			//time_t endro=clock();
 			//cout<<"rout alg time: "<<endro-startro<<endl;
 			vector<vector<demand>>remain(PC,vector<demand>());
-			time_t starta=clock();
+			//time_t starta=clock();
+			/*for(int k=0;k<PC;k++)
+					for(int i=0;i<ds[k].size();i++)
+							{
+									if(!ds[k][i].routid.empty())
+											{
+											  cout<<"fucking shit wrong!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+											}
+							}*/
 			for(int k=0;k<PC;k++)
 					for(int i=0;i<result[k].size();i++)
 					{
@@ -254,13 +262,13 @@ class Graph
 											}
 									else
 										{
-											dsque[k].push(make_pair(i,INF));
-											//cout<<"id "<<ds[k][i].s<<" "<<ds[k][i].t<<endl;
+											block.push_back(ds[k][i]);
 										}
 							}
 			time_t mid=clock();
 			//cout<<"build queue: "<<mid-starta<<endl;
 			int count=0;
+			int sss=0;
 			for(int k=0;k<PC;k++)
 			{
 				int newid=0;
@@ -270,8 +278,6 @@ class Graph
 						pair<int,int> pp=dsque[k].top();
 						demand nde=ds[k][pp.first];
 						dsque[k].pop();
-						if(pp.second==INF)
-							{block.push_back(nde);continue;}
 						int flag=0;
 						while(!nde.routid.empty())
 						{
@@ -296,7 +302,12 @@ class Graph
 										eid=router1.p[node+offf];
 									if(esignes[ly][eid]<0)
 									{
-										flag=-1;
+										//if(sss==0)
+										//{
+											//cout<<"le: "<<ly<<" "<<eid<<endl;
+											//cout<<edges[0].s<<" "<<edges[0].t<<endl;
+											//cout<<"st: "<<s<<" "<<RR.t<<endl;
+										//}
 										ff=-1;
 										break;
 									}
@@ -324,12 +335,16 @@ class Graph
 								nde.rout=rout;
 								nde.mark=ly;
 								nde.value=wv;
+								priority_queue<pair<int,int>,vector<pair<int,int>>,paircomp>routid;
+								nde.routid=routid;
 								addin.push_back(nde);
+								//sss=1;
 								break;
 						}
 						//cout<<"flag is "<<flag<<endl;
-						if(flag<0){
+						if(flag==0){
 								nde.id=newid++;
+								//if(sss==0)cout<<"holyshitttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"<<endl;
 								remain[k].push_back(nde);
 								
 						}
@@ -344,10 +359,12 @@ class Graph
         void routalg(int s,int t,int bw)
 		{
         	vector<int>tasknum;
-        	int num=addevent[current].second;
-        	tasknum.push_back(num*DSIZE);
-        	tasknum.push_back(num*3*DSIZE);
+        	int num1=addevent[current].second.first;
+        	int num2=addevent[current].second.second;
+        	tasknum.push_back(num1*DSIZE);
+        	tasknum.push_back(num2*3*DSIZE);
         	vector<vector<demand>>ds=Gendemand(tasknum);
+        	int totalnum=tasknum[0]+tasknum[1];
         	tasksize.push_back(tasknum[0]+tasknum[1]);
 			vector<demand>block;
 			vector<demand>addin;
@@ -358,8 +375,17 @@ class Graph
 			if(METHOD==1)
 				serialadd(ds,addin,block,timecount);
 			if(METHOD==0)
+			{
+				int cc=0;
 				while(ds[0].size()>0||ds[1].size()>0)
-					ds=greedy(ds,addin,block,timecount);
+					{
+						//cc++;
+						//cout<<"roud is::: ********************************************************"<<cc<<endl;
+						ds=greedy(ds,addin,block,timecount);
+					}
+			}
+			//if(addin.size()+block.size()!=totalnum)
+				//cout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"<<endl;
 			times.push_back(timecount);
 			int count=0;
 			int hops=0;
@@ -376,16 +402,16 @@ class Graph
 					for(int h=0;h<dd.rout.size();h++)
 						delevent[serv+current+1].push_back(make_pair(dd.mark,dd.rout[h]));
 			}
-			//cout<<"what f"<<endl;
+			//cout<<"what f2"<<endl;
 			//if(addin.size()==0)cout<<"what happend!"<<endl;
 			average.push_back((double)count/(double)addin.size());
 			averhops.push_back((double)hops/(double)addin.size());
 			blocks.push_back(block.size());
-			/*cout<<"add in rout cost is "<<count<<endl;
-			cout<<"add in is "<<addin.size()<<endl;
-			cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
-			cout<<"block size "<<block.size()<<endl;
-			cout<<"time is"<<end-start<<endl;*/
+			//cout<<"add in rout cost is "<<count<<endl;
+			//cout<<"add in is "<<addin.size()<<endl;
+			//cout<<"remain size"<<ds[0].size()+ds[1].size()<<endl;
+			//cout<<"block size "<<block.size()<<endl;
+			//cout<<"time is"<<end-start<<endl;
 		}
         void serialadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
         {
