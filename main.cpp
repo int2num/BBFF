@@ -38,6 +38,12 @@ int main(int args,char*arg[])
     	  			  g.run(0.2,lambda,OBNUM,1,0);
     	  			  break;
     	  		  }
+    	  	  case 'G':
+				  {
+					  cout<<"sorted relaize:"<<endl;
+					  g.run(0.2,lambda,OBNUM,2,0);
+					  break;
+				  }
     	  	  
     	  }
 	}
@@ -68,6 +74,12 @@ int main(int args,char*arg[])
 				  g.run(0.2,lambda,OBNUM,1,0);
 				  break;
 			  }
+			case 'G':
+				  {
+					  cout<<"sorted relaize:"<<endl;
+					  g.run(0.2,lambda,OBNUM,2,0);
+					  break;
+				  }
 		
 		}
 

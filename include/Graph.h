@@ -21,6 +21,13 @@ struct fedge{
 	int from,to,price,cap;
 	fedge(int f,int t,int p,int c):from(f),to(t),price(p),cap(c){};
 };
+struct mmmp{
+	bool operator ()(demand a,demand b)
+	{
+		return a.estimate<b.estimate;
+		
+	};
+};
 double randomExponential(double lambda)
 {
     double pV = 0.0;
@@ -68,9 +75,13 @@ class Graph
 		int METHOD;
 		int PARAL;
 		double RATIO;
+		vector<vector<int>>HDist;
+		vector<vector<int>>DDist;
         void run(float _ratio,float lambda,float MAXNUM,int _method,int _paral)
         {
 
+        	
+        	
 			RATIO=_ratio;
         	LAMBDA=lambda;
         	ADDNUM=MAXNUM;
@@ -342,13 +353,13 @@ class Graph
 			vector<demand>addin;
 			double timecount=0;
 			//cout<<"wht"<<endl;
-			if(METHOD>0)
+			if(METHOD==2)
+				sortadd(ds,addin,block,timecount);
+			if(METHOD==1)
 				serialadd(ds,addin,block,timecount);
-			else
-				{
-					while(ds[0].size()>0||ds[1].size()>0)
-						ds=greedy(ds,addin,block,timecount);
-				}
+			if(METHOD==0)
+				while(ds[0].size()>0||ds[1].size()>0)
+					ds=greedy(ds,addin,block,timecount);
 			times.push_back(timecount);
 			int count=0;
 			int hops=0;
@@ -392,7 +403,7 @@ class Graph
         				int flag=0;
         				for(int k=L[y-1];k<L[y];k++)
         				{
-        					vector<int> rout=router1.tunel(s,t,k);
+        					vector<int> rout=router1.tunel(s,t,k).second;
         					int w=0;
         					if(rout.size()>0){
         						ds[y-1][i].rout=rout;
@@ -426,6 +437,108 @@ class Graph
         	timecount+=end-start;	
         	//cout<<"out"<<endl;
         }
+        void sortadd(vector<vector<demand>>&ds,vector<demand>&addin,vector<demand>&block,double&timecount)
+               {
+               	//cout<<"aas"<<endl;
+               	time_t start=clock();
+       			router1.updatE(esignes);
+               	vector<int>L(3,0);
+               	L[0]=0;L[1]=LY1;L[2]=LY2+LY1;
+               	//vector<priority_queue<pair<demand,int>,vector<pair<demand,int>>,mmmp>>order(PC,priority_queue<pair<demand,int>,vector<pair<demand,int>>,mmmp>());
+               //	cout<<"............................"<<endl;
+               	for(int y=0;y<PC;y++)
+               	{
+               		for(int i=0;i<ds[y].size();i++)
+               		{
+               			int s=ds[y][i].s;
+               			int t=ds[y][i].t;
+						pair<int,vector<int>>dd=router1.tunel(s,t,L[y],1);
+						//cout<<s<<" "<<t<<" "<<dd.first<<endl;
+       					ds[y][i].estimate=dd.first;
+       					ds[y][i].rout=dd.second;
+               		}
+               	}
+               	//cout<<"cac fin"<<endl;
+               	sort(ds[0].begin(),ds[0].end(),mmmp());
+               	sort(ds[1].begin(),ds[1].end(),mmmp());
+               	//cout<<ds[0][0].estimate<<endl;
+               	//cout<<ds[1][0].estimate<<endl;
+               	for(int y=1;y<PC+1;y++)
+               		{
+               			//cout<<"yyy:"<<y<<endl;
+               			for(int i=0;i<ds[y-1].size();i++)
+               			{
+               				int s=ds[y-1][i].s;
+               				int t=ds[y-1][i].t;
+               				int flag=0;
+               				vector<int> rout=ds[y-1][i].rout;
+							int w=0;
+							if(rout.size()>0){
+								ds[y-1][i].rout=rout;
+								int bb=0;
+								for(int l=0;l<rout.size();l++)
+								{
+									if(esignes[L[y-1]][rout[l]]<0)
+										{bb=1;break;}
+								}
+								if(bb==0)
+								{
+									for(int l=0;l<rout.size();l++)
+										{
+											int eid=rout[l];
+											w+=esignes[L[y-1]][eid];
+											if(IFHOP<1)
+												esignes[L[y-1]][eid]*=-1;
+											if(IFHOP==1)
+											{
+												eid=(eid/WD)*WD;
+												for(int j=0;j<WD;j++)
+													esignes[L[y-1]][eid+j]*=-1;
+											}
+										}
+									router1.updatR(L[y-1],rout);
+									ds[y-1][i].mark=L[y-1];
+									ds[y-1][i].value=w;
+									addin.push_back(ds[y-1][i]);
+									flag=1;
+								}
+							}
+							if(flag==0)
+								{
+									for(int k=L[y-1]+1;k<L[y];k++)
+									{
+										vector<int> rout=router1.tunel(s,t,k).second;
+										int w=0;
+										if(rout.size()>0){
+											ds[y-1][i].rout=rout;
+											for(int l=0;l<rout.size();l++)
+												{
+													int eid=ds[y-1][i].rout[l];
+													w+=esignes[k][eid];
+													if(IFHOP<1)
+														esignes[k][eid]*=-1;
+													if(IFHOP==1)
+													{
+														eid=(eid/WD)*WD;
+														for(int j=0;j<WD;j++)
+															esignes[k][eid+j]*=-1;
+													}
+												}
+											ds[y-1][i].mark=k;
+											ds[y-1][i].value=w;
+											addin.push_back(ds[y-1][i]);
+											flag=1;
+											break;
+										}
+									}
+								}
+               				if(flag==0)block.push_back(ds[y-1][i]);
+               			}
+               		}
+               	time_t end=clock();
+               	timecount+=end-start;	
+               	//cout<<"out"<<endl;
+               }
         virtual ~Graph(){ 
         };
     protected:
